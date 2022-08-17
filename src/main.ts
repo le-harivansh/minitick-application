@@ -1,14 +1,14 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 
-import App from "./App.vue";
+import Application from "./ClaxApplication.vue";
 import router from "./router";
 
 import "./assets/main.css";
 
-const app = createApp(App);
+const application = createApp(Application);
 
-app.use(createPinia());
-app.use(router);
+application.use(createPinia());
+application.use(router);
 
-app.mount("#app");
+application.mount("#application");
