@@ -1,3 +1,6 @@
+# Environment
+.env
+
 # Yarn
 .yarn/*
 !.yarn/cache
