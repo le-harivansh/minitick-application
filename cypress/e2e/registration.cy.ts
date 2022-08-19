@@ -56,14 +56,14 @@ describe("User registration", () => {
       password: "le-password",
     };
 
-    const errorMessages = ["An error occured. Log in manually."];
+    const errorMessage = "An error occured. Log in manually.";
 
     cy.intercept("POST", "/register", { statusCode: 204 });
     cy.intercept("POST", "/login", {
       statusCode: 401,
       body: {
         statusCode: 401,
-        message: errorMessages,
+        message: errorMessage,
         error: "Unauthorized",
       },
     });
@@ -76,7 +76,7 @@ describe("User registration", () => {
 
     cy.get('[data-test="errors"]')
       .should("be.visible")
-      .and("contain.text", errorMessages[0]);
+      .and("contain.text", errorMessage);
 
     cy.get("#username").invoke("val").should("be.empty");
     cy.get("#password").invoke("val").should("be.empty");

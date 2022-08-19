@@ -5,7 +5,7 @@ import axios, { AxiosError, type AxiosResponse } from "axios";
 
 const router = useRouter();
 
-const userData = reactive({
+const userCredentials = reactive({
   username: "",
   password: "",
 });
@@ -36,28 +36,19 @@ async function processResponse(request: () => Promise<AxiosResponse>) {
   return response;
 }
 
-async function register() {
-  const registerResponse = await processResponse(() =>
-    axios.post("/register", userData)
+async function login() {
+  const loginResponse = await processResponse(() =>
+    axios.post("/login", userCredentials)
   );
 
-  if (registerResponse?.status === 204) {
-    const loginResponse = await processResponse(() =>
-      axios.post("/login", userData)
-    );
-
-    userData.username = "";
-    userData.password = "";
-
-    if (loginResponse?.status === 204) {
-      await router.push({ name: "home" });
-    }
+  if (loginResponse?.status === 204) {
+    await router.push({ name: "home" });
   }
 }
 </script>
 
 <template>
-  <h2>Register</h2>
+  <h2>Login</h2>
 
   <ul v-show="errors.length" data-test="errors">
     <li v-for="(error, index) in errors" :key="`${error}-${index}`">
@@ -65,29 +56,25 @@ async function register() {
     </li>
   </ul>
 
-  <form @submit.prevent="register">
+  <form @submit.prevent="login">
     <label for="username">Username:</label>
     <input
       type="text"
       id="username"
-      v-model="userData.username"
+      v-model="userCredentials.username"
       autocomplete="username"
       required
-      pattern=".{4,}"
-      title="The username should be at least 4 characters long"
     />
 
     <label for="password">Password:</label>
     <input
       type="password"
       id="password"
-      v-model="userData.password"
-      autocomplete="new-password"
+      v-model="userCredentials.password"
+      autocomplete="current-password"
       required
-      pattern=".{8,}"
-      title="The password should be at least 8 characters long"
     />
 
-    <button type="submit" data-test="register-button">Register</button>
+    <button type="submit" data-test="login-button">Login</button>
   </form>
 </template>
