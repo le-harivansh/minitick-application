@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
-import axios, { AxiosError, type AxiosResponse } from "axios";
+import axios from "axios";
+import { nonThrowableRequest } from "../lib/request";
 
 const router = useRouter();
 
@@ -12,47 +13,20 @@ const userData = reactive({
 
 const errors: string[] = reactive([]);
 
-async function processResponse(request: () => Promise<AxiosResponse>) {
-  let response: AxiosResponse | undefined = undefined;
-
-  try {
-    response = await request();
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      const responseData: { message: string } = error.response?.data;
-
-      if (responseData && responseData.message) {
-        const errorMessages = Array.isArray(responseData.message)
-          ? responseData.message
-          : [responseData.message];
-
-        for (const errorMessage of errorMessages) {
-          errors.push(errorMessage);
-        }
-      }
-    }
-  }
-
-  return response;
-}
-
 async function register() {
-  const registerResponse = await processResponse(() =>
-    axios.post("/register", userData)
+  errors.splice(0, errors.length);
+
+  const { errors: registrationErrors } = await nonThrowableRequest(
+    async () => (await axios.post<void>("/register", userData)).data
   );
 
-  if (registerResponse?.status === 204) {
-    const loginResponse = await processResponse(() =>
-      axios.post("/login", userData)
+  if (registrationErrors) {
+    return registrationErrors.forEach((registrationError) =>
+      errors.push(registrationError)
     );
-
-    userData.username = "";
-    userData.password = "";
-
-    if (loginResponse?.status === 204) {
-      await router.push({ name: "home" });
-    }
   }
+
+  return router.push({ name: "login" });
 }
 </script>
 
@@ -60,12 +34,10 @@ async function register() {
   <h2>Register</h2>
 
   <ul v-show="errors.length" data-test="errors">
-    <li v-for="(error, index) in errors" :key="`${error}-${index}`">
-      {{ error }}
-    </li>
+    <li v-for="error in errors" :key="error">{{ error }}</li>
   </ul>
 
-  <form @submit.prevent="register">
+  <form @submit.prevent="register" data-test="register-form">
     <label for="username">Username:</label>
     <input
       type="text"

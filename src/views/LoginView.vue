@@ -1,9 +1,22 @@
 <script setup lang="ts">
+import axios from "axios";
+import ms from "ms";
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
-import axios, { AxiosError, type AxiosResponse } from "axios";
+import {
+  ACCESS_TOKEN_EXPIRES_AT,
+  REFRESH_TOKEN_EXPIRES_AT,
+  PASSWORD_CONFIRMATION_TOKEN_EXPIRES_AT,
+} from "../lib/constants";
+import { nonThrowableRequest } from "../lib/request";
+import {
+  setTimeoutToRefreshAccessToken,
+  setTimeoutToRefreshRefreshToken,
+} from "../lib/token-refresh";
+import { useMainStore } from "../stores/main";
 
 const router = useRouter();
+const mainStore = useMainStore();
 
 const userCredentials = reactive({
   username: "",
@@ -12,51 +25,81 @@ const userCredentials = reactive({
 
 const errors: string[] = reactive([]);
 
-async function processResponse(request: () => Promise<AxiosResponse>) {
-  let response: AxiosResponse | undefined = undefined;
+async function login() {
+  errors.splice(0, errors.length);
 
-  try {
-    response = await request();
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      const responseData: { message: string } = error.response?.data;
+  const { result: authenticationResult, errors: authenticationErrors } =
+    await nonThrowableRequest(
+      async () =>
+        (
+          await axios.post<{
+            accessToken: { expiresAt: number };
+            refreshToken: { expiresAt: number };
+            passwordConfirmationToken: { expiresAt: number };
+          }>("/login", userCredentials)
+        ).data
+    );
 
-      if (responseData && responseData.message) {
-        const errorMessages = Array.isArray(responseData.message)
-          ? responseData.message
-          : [responseData.message];
-
-        for (const errorMessage of errorMessages) {
-          errors.push(errorMessage);
-        }
-      }
-    }
+  if (authenticationErrors) {
+    return authenticationErrors.forEach((authenticationError) =>
+      errors.push(authenticationError)
+    );
   }
 
-  return response;
-}
-
-async function login() {
-  const loginResponse = await processResponse(() =>
-    axios.post("/login", userCredentials)
+  localStorage.setItem(
+    ACCESS_TOKEN_EXPIRES_AT,
+    authenticationResult.accessToken.expiresAt.toString()
+  );
+  localStorage.setItem(
+    REFRESH_TOKEN_EXPIRES_AT,
+    authenticationResult.refreshToken.expiresAt.toString()
+  );
+  localStorage.setItem(
+    PASSWORD_CONFIRMATION_TOKEN_EXPIRES_AT,
+    authenticationResult.passwordConfirmationToken.expiresAt.toString()
   );
 
-  if (loginResponse?.status === 204) {
-    await router.push({ name: "home" });
+  const { result: userData, errors: userQueryErrors } =
+    await nonThrowableRequest(
+      async () =>
+        (
+          await axios.get<{ id: string; username: string }>("/user")
+        ).data
+    );
+
+  if (userQueryErrors) {
+    return userQueryErrors.forEach((userQueryError) =>
+      errors.push(userQueryError)
+    );
   }
+
+  mainStore.authenticatedUser.id = userData.id;
+  mainStore.authenticatedUser.username = userData.username;
+
+  setTimeoutToRefreshAccessToken(
+    authenticationResult.accessToken.expiresAt -
+      Date.now() -
+      ms(import.meta.env.VITE_ACCESS_TOKEN_REFRESH_THRESHOLD)
+  );
+
+  setTimeoutToRefreshRefreshToken(
+    authenticationResult.refreshToken.expiresAt -
+      Date.now() -
+      ms(import.meta.env.VITE_REFRESH_TOKEN_REFRESH_THRESHOLD)
+  );
+
+  return router.push({ name: "home" });
 }
 </script>
 
 <template>
   <h2>Login</h2>
 
-  <ul v-show="errors.length" data-test="errors">
-    <li v-for="(error, index) in errors" :key="`${error}-${index}`">
-      {{ error }}
-    </li>
+  <ul v-show="!!errors.length" data-test="errors">
+    <li v-for="error in errors" :key="error">{{ error }}</li>
   </ul>
 
-  <form @submit.prevent="login">
+  <form @submit.prevent="login" data-test="login-form">
     <label for="username">Username:</label>
     <input
       type="text"

@@ -1,11 +1,22 @@
 describe("User login", () => {
   it("logs in and redirects a user with the correct credentials to the home page", () => {
+    cy.intercept("POST", "/login", {
+      statusCode: 200,
+      body: {
+        accessToken: { expiresAt: Date.now() },
+        refreshToken: { expiresAt: Date.now() },
+        passwordConfirmationToken: { expiresAt: Date.now() },
+      },
+    });
+    cy.intercept("GET", "/user", {
+      statusCode: 200,
+      body: { id: "user-id", username: "username" },
+    });
+
     const userCredentials = {
       username: "le-username",
       password: "le-password",
     };
-
-    cy.intercept("POST", "/login", { statusCode: 204 });
 
     cy.visit("/login");
 
@@ -16,22 +27,22 @@ describe("User login", () => {
     cy.location("pathname").should("equal", "/");
   });
 
-  it("displays any returned error messages if the login fails", () => {
-    const userCredentials = {
-      username: "le-username",
-      password: "le-password",
-    };
-
+  it("displays an error message if invalid credentials are provided", () => {
     const errorMessage = "The provided credentials are invalid.";
 
     cy.intercept("POST", "/login", {
-      statusCode: 400,
+      statusCode: 401,
       body: {
-        statusCode: 400,
+        statusCode: 401,
         message: errorMessage,
         error: "Bad Request",
       },
     });
+
+    const userCredentials = {
+      username: "le-username",
+      password: "le-password",
+    };
 
     cy.visit("/login");
 
