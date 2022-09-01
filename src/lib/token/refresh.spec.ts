@@ -14,15 +14,18 @@ import {
   vi,
   type Mock,
 } from "vitest";
-import { useMainStore } from "../stores/main";
-import { ACCESS_TOKEN_EXPIRES_AT, REFRESH_TOKEN_EXPIRES_AT } from "./constants";
-import { LocalStorageMock } from "./test-helpers";
+import { useMainStore } from "../../stores/main";
+import {
+  ACCESS_TOKEN_EXPIRES_AT,
+  REFRESH_TOKEN_EXPIRES_AT,
+} from "../constants";
+import { LocalStorageMock } from "../test/helpers";
 import {
   refreshAccessTokenAndSaveExpiryToLocalStorage,
   refreshRefreshTokenAndSaveExpiryToLocalStorage,
   setTimeoutToRefreshAccessToken,
   setTimeoutToRefreshRefreshToken,
-} from "./token-refresh";
+} from "./refresh";
 
 describe("Token-refresh helpers", () => {
   const server = setupServer();

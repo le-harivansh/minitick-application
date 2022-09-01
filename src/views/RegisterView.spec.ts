@@ -14,7 +14,7 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { defineComponent } from "vue";
 import RegisterView from "./RegisterView.vue";
-import type { UnArray } from "../lib/test-helpers";
+import type { UnArray } from "../lib/test/helpers";
 
 describe("RegisterView", () => {
   const userRegistrationData: {

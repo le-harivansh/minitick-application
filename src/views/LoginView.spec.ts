@@ -21,7 +21,7 @@ import {
   PASSWORD_CONFIRMATION_TOKEN_EXPIRES_AT,
 } from "../lib/constants";
 import { useMainStore } from "../stores/main";
-import { LocalStorageMock, type UnArray } from "../lib/test-helpers";
+import { LocalStorageMock, type UnArray } from "../lib/test/helpers";
 
 describe("LoginView", () => {
   const originalLocalStorage = localStorage;

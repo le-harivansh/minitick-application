@@ -8,11 +8,11 @@ import {
   REFRESH_TOKEN_EXPIRES_AT,
   PASSWORD_CONFIRMATION_TOKEN_EXPIRES_AT,
 } from "../lib/constants";
-import { nonThrowableRequest } from "../lib/request";
+import { nonThrowableRequest } from "../lib/helpers";
 import {
   setTimeoutToRefreshAccessToken,
   setTimeoutToRefreshRefreshToken,
-} from "../lib/token-refresh";
+} from "../lib/token/refresh";
 import { useMainStore } from "../stores/main";
 
 const router = useRouter();

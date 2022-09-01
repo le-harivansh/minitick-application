@@ -7,7 +7,7 @@ import { AxiosError } from "axios";
  * object.
  */
 export async function nonThrowableRequest<T>(
-  callback: () => T | Promise<T>
+  callback: () => Promise<T>
 ): Promise<{ result: T; errors: null } | { result: null; errors: string[] }> {
   try {
     return {

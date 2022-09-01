@@ -1,8 +1,8 @@
 import axios, { type AxiosError } from "axios";
 import ms from "ms";
-import { useMainStore } from "../stores/main";
-import { ACCESS_TOKEN_EXPIRES_AT } from "./constants";
-import { setTimeoutToRefreshAccessToken } from "./token-refresh";
+import { useMainStore } from "../../stores/main";
+import { ACCESS_TOKEN_EXPIRES_AT } from "../constants";
+import { setTimeoutToRefreshAccessToken } from "../token/refresh";
 
 export function retryUnauthorizedRequestsAfterRefreshingAccessToken() {
   const blacklistedRoutes = [

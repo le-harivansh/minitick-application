@@ -1,15 +1,12 @@
-import type { Pinia } from "pinia";
 import type { RouteRecordRaw } from "vue-router";
 import { useMainStore } from "./stores/main";
 
-export default function generateApplicationRoutes(
-  applicationStore: Pinia
-): RouteRecordRaw[] {
-  const mainStore = useMainStore(applicationStore);
+export default function generateApplicationRoutes(): RouteRecordRaw[] {
+  const mainStore = useMainStore();
 
   function redirectToHomeIfAuthenticated() {
     if (
-      !!mainStore.authenticatedUser.id ||
+      !!mainStore.authenticatedUser.id &&
       !!mainStore.authenticatedUser.username
     ) {
       return { name: "home" };

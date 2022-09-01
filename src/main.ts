@@ -5,7 +5,8 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import generateApplicationRoutes from "./routes";
 import ClaxApplication from "./ClaxApplication.vue";
-import { retryUnauthorizedRequestsAfterRefreshingAccessToken } from "./lib/axios-interceptors";
+import { retryUnauthorizedRequestsAfterRefreshingAccessToken } from "./lib/axios/interceptors";
+import { initializeUserInStoreIfAuthenticated } from "./lib/bootstrap";
 
 import "./assets/main.css";
 
@@ -19,13 +20,15 @@ axios.interceptors.response.use(
 
 const application = createApp(ClaxApplication);
 
-const pinia = createPinia();
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: generateApplicationRoutes(pinia),
-});
+application.use(createPinia());
 
-application.use(pinia);
-application.use(router);
+await initializeUserInStoreIfAuthenticated();
+
+application.use(
+  createRouter({
+    history: createWebHistory(import.meta.env.BASE_URL),
+    routes: generateApplicationRoutes(),
+  })
+);
 
 application.mount("#application");

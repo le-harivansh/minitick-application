@@ -2,7 +2,7 @@
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import { nonThrowableRequest } from "../lib/request";
+import { nonThrowableRequest } from "../lib/helpers";
 
 const router = useRouter();
 

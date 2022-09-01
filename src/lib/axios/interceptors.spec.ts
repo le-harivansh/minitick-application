@@ -12,9 +12,9 @@ import {
   it,
   vi,
 } from "vitest";
-import { useMainStore } from "../stores/main";
-import { retryUnauthorizedRequestsAfterRefreshingAccessToken } from "./axios-interceptors";
-import { ACCESS_TOKEN_EXPIRES_AT } from "./constants";
+import { useMainStore } from "../../stores/main";
+import { retryUnauthorizedRequestsAfterRefreshingAccessToken } from "./interceptors";
+import { ACCESS_TOKEN_EXPIRES_AT } from "../constants";
 
 describe(retryUnauthorizedRequestsAfterRefreshingAccessToken.name, () => {
   const server = setupServer();

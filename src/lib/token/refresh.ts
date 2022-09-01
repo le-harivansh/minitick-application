@@ -1,8 +1,11 @@
 import axios from "axios";
 import ms from "ms";
-import { useMainStore } from "../stores/main";
-import { ACCESS_TOKEN_EXPIRES_AT, REFRESH_TOKEN_EXPIRES_AT } from "./constants";
-import { nonThrowableRequest } from "./request";
+import { useMainStore } from "../../stores/main";
+import {
+  ACCESS_TOKEN_EXPIRES_AT,
+  REFRESH_TOKEN_EXPIRES_AT,
+} from "../constants";
+import { nonThrowableRequest } from "../helpers";
 
 export async function refreshAccessTokenAndSaveExpiryToLocalStorage() {
   const { result: refreshAccessTokenResult } = await nonThrowableRequest(
@@ -41,7 +44,9 @@ export async function refreshRefreshTokenAndSaveExpiryToLocalStorage() {
 }
 
 export function setTimeoutToRefreshAccessToken(initialTimeout: number) {
-  const RETRY_AFTER_IF_REFRESH_FAILS = 1000 * 5; // the timeout to set if the token-refresh fails.
+  const tokenRefreshRetryInterval = ms(
+    import.meta.env.VITE_TOKEN_REFRESH_RETRY_INTERVAL
+  );
   const accessTokenRefreshThreshold = ms(
     import.meta.env.VITE_ACCESS_TOKEN_REFRESH_THRESHOLD
   );
@@ -50,7 +55,7 @@ export function setTimeoutToRefreshAccessToken(initialTimeout: number) {
   async function refreshAccessTokenCallback(): Promise<void> {
     const newAccessTokenExpiresAt =
       (await refreshAccessTokenAndSaveExpiryToLocalStorage()) ??
-      Date.now() + accessTokenRefreshThreshold + RETRY_AFTER_IF_REFRESH_FAILS;
+      Date.now() + accessTokenRefreshThreshold + tokenRefreshRetryInterval;
 
     mainStore.tokenTimers.accessToken = setTimeout(
       refreshAccessTokenCallback,
@@ -65,7 +70,9 @@ export function setTimeoutToRefreshAccessToken(initialTimeout: number) {
 }
 
 export async function setTimeoutToRefreshRefreshToken(initialTimeout: number) {
-  const RETRY_AFTER_IF_REFRESH_FAILS = 1000 * 5; // the timeout to set if the token-refresh fails.
+  const tokenRefreshRetryInterval = ms(
+    import.meta.env.VITE_TOKEN_REFRESH_RETRY_INTERVAL
+  );
   const refreshTokenRefreshThreshold = ms(
     import.meta.env.VITE_REFRESH_TOKEN_REFRESH_THRESHOLD
   );
@@ -74,7 +81,7 @@ export async function setTimeoutToRefreshRefreshToken(initialTimeout: number) {
   async function refreshRefreshTokenCallback(): Promise<void> {
     const newRefreshTokenExpiresAt =
       (await refreshRefreshTokenAndSaveExpiryToLocalStorage()) ??
-      Date.now() + refreshTokenRefreshThreshold + RETRY_AFTER_IF_REFRESH_FAILS;
+      Date.now() + refreshTokenRefreshThreshold + tokenRefreshRetryInterval;
 
     mainStore.tokenTimers.refreshToken = setTimeout(
       refreshRefreshTokenCallback,

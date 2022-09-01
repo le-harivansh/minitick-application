@@ -1,6 +1,6 @@
 import { AxiosError, type AxiosResponse } from "axios";
 import { describe, expect, it } from "vitest";
-import { nonThrowableRequest } from "./request";
+import { nonThrowableRequest } from "./helpers";
 
 describe(nonThrowableRequest.name, () => {
   it("returns the result of the provided callback", async () => {
