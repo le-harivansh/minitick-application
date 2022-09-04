@@ -16,7 +16,11 @@ const isAuthenticated = computed(
       <p class="flex-1 font-semibold tracking-wide text-lg">
         {{ authenticatedUser.username }}
       </p>
-      <RouterLink :to="{ name: 'home' }" data-test="home" class="home">
+      <RouterLink
+        :to="{ name: 'home' }"
+        data-test="home"
+        exact-active-class="hidden"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -32,7 +36,11 @@ const isAuthenticated = computed(
           />
         </svg>
       </RouterLink>
-      <RouterLink :to="{ name: 'profile' }" data-test="profile" class="profile">
+      <RouterLink
+        :to="{ name: 'profile' }"
+        data-test="profile"
+        active-class="hidden"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -56,7 +64,11 @@ const isAuthenticated = computed(
     </section>
 
     <section v-else class="flex space-x-1 justify-end authentication">
-      <RouterLink :to="{ name: 'login' }" data-test="login">
+      <RouterLink
+        :to="{ name: 'login' }"
+        data-test="login"
+        active-class="text-sky-500"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -72,7 +84,11 @@ const isAuthenticated = computed(
           />
         </svg>
       </RouterLink>
-      <RouterLink :to="{ name: 'register' }" data-test="register">
+      <RouterLink
+        :to="{ name: 'register' }"
+        data-test="register"
+        active-class="text-sky-500"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -91,14 +107,3 @@ const isAuthenticated = computed(
     </section>
   </nav>
 </template>
-
-<style scoped>
-.authentication .router-link-exact-active {
-  @apply text-sky-500;
-}
-
-.router-link-active.profile,
-.router-link-exact-active.home {
-  @apply hidden;
-}
-</style>

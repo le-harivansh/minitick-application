@@ -71,7 +71,7 @@ async function confirmPassword() {
       </svg>
     </button>
 
-    <teleport to="body">
+    <teleport to="#application">
       <article
         v-if="isOpen"
         class="absolute top-0 left-0 w-full h-full p-2 bg-slate-100"

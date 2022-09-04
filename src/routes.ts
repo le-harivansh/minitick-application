@@ -15,7 +15,7 @@ export default function generateApplicationRoutes(): RouteRecordRaw[] {
 
   function redirectToLoginIfUnauthenticated() {
     if (
-      !mainStore.authenticatedUser.id &&
+      !mainStore.authenticatedUser.id ||
       !mainStore.authenticatedUser.username
     ) {
       return { name: "login" };
