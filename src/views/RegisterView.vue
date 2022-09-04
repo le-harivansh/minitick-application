@@ -31,35 +31,56 @@ async function register() {
 </script>
 
 <template>
-  <h2>Register</h2>
+  <main class="flex flex-col space-y-4">
+    <h2 class="font-heading text-4xl text-center font-semibold">Register</h2>
 
-  <ul v-show="errors.length" data-test="errors">
-    <li v-for="error in errors" :key="error">{{ error }}</li>
-  </ul>
+    <ul v-show="errors.length" data-test="errors" class="px-2 flex flex-col">
+      <li v-for="error in errors" :key="error" class="text-sm text-red-500">
+        {{ error }}
+      </li>
+    </ul>
 
-  <form @submit.prevent="register" data-test="register-form">
-    <label for="username">Username:</label>
-    <input
-      type="text"
-      id="username"
-      v-model="userData.username"
-      autocomplete="username"
-      required
-      pattern=".{4,}"
-      title="The username should be at least 4 characters long"
-    />
+    <form @submit.prevent="register" class="flex flex-col space-y-2">
+      <section class="flex flex-col space-y-1">
+        <label for="username" class="font-semibold">Username:</label>
+        <input
+          type="text"
+          id="username"
+          class="w-full px-2 py-1 rounded focus:outline-none focus:ring-2"
+          placeholder="Your new username"
+          v-model="userData.username"
+          pattern=".{4,}"
+          title="The username should be at least 4 characters long"
+          autocomplete="username"
+          required
+          autofocus
+        />
+      </section>
 
-    <label for="password">Password:</label>
-    <input
-      type="password"
-      id="password"
-      v-model="userData.password"
-      autocomplete="new-password"
-      required
-      pattern=".{8,}"
-      title="The password should be at least 8 characters long"
-    />
+      <section class="flex flex-col space-y-1">
+        <label for="password" class="font-semibold">Password:</label>
+        <input
+          type="password"
+          id="password"
+          class="w-full px-2 py-1 rounded focus:outline-none focus:ring-2"
+          placeholder="Your new password"
+          v-model="userData.password"
+          pattern=".{8,}"
+          title="The password should be at least 8 characters long"
+          autocomplete="new-password"
+          required
+        />
+      </section>
 
-    <button type="submit" data-test="register-button">Register</button>
-  </form>
+      <section>
+        <button
+          type="submit"
+          class="bg-sky-400 w-full mt-4 py-1 rounded text-white font-bold text-lg hover:shadow-md focus:outline-none"
+          data-test="register-button"
+        >
+          Register
+        </button>
+      </section>
+    </form>
+  </main>
 </template>

@@ -93,31 +93,52 @@ async function login() {
 </script>
 
 <template>
-  <h2>Login</h2>
+  <main class="flex flex-col space-y-4">
+    <h2 class="font-heading text-4xl text-center font-semibold">Login</h2>
 
-  <ul v-show="!!errors.length" data-test="errors">
-    <li v-for="error in errors" :key="error">{{ error }}</li>
-  </ul>
+    <ul v-show="errors.length" data-test="errors" class="px-2 flex flex-col">
+      <li v-for="error in errors" :key="error" class="text-sm text-red-500">
+        {{ error }}
+      </li>
+    </ul>
 
-  <form @submit.prevent="login" data-test="login-form">
-    <label for="username">Username:</label>
-    <input
-      type="text"
-      id="username"
-      v-model="userCredentials.username"
-      autocomplete="username"
-      required
-    />
+    <form @submit.prevent="login" class="flex flex-col space-y-2">
+      <section class="flex flex-col space-y-1">
+        <label for="username" class="font-semibold">Username:</label>
+        <input
+          type="text"
+          id="username"
+          class="w-full px-2 py-1 rounded focus:outline-none focus:ring-2"
+          placeholder="Your username"
+          v-model="userCredentials.username"
+          autocomplete="username"
+          required
+          autofocus
+        />
+      </section>
 
-    <label for="password">Password:</label>
-    <input
-      type="password"
-      id="password"
-      v-model="userCredentials.password"
-      autocomplete="current-password"
-      required
-    />
+      <section class="flex flex-col space-y-1">
+        <label for="password" class="font-semibold">Password:</label>
+        <input
+          type="password"
+          id="password"
+          class="w-full px-2 py-1 rounded focus:outline-none focus:ring-2"
+          placeholder="Your password"
+          v-model="userCredentials.password"
+          autocomplete="current-password"
+          required
+        />
+      </section>
 
-    <button type="submit" data-test="login-button">Login</button>
-  </form>
+      <section>
+        <button
+          type="submit"
+          class="bg-sky-400 w-full mt-4 py-1 rounded text-white font-bold text-lg hover:shadow-md focus:outline-none"
+          data-test="login-button"
+        >
+          Login
+        </button>
+      </section>
+    </form>
+  </main>
 </template>

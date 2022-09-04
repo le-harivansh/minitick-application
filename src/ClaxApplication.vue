@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
+import { RouterView } from "vue-router";
+import MainNavigation from "@/components/MainNavigation.vue";
 </script>
 
 <template>
-  <header>
-    <nav>
-      <RouterLink :to="{ name: 'register' }">Register</RouterLink>
-      <RouterLink :to="{ name: 'login' }">Login</RouterLink>
-    </nav>
-  </header>
+  <div class="w-full h-full bg-slate-100 p-2 font-body">
+    <header class="mb-2">
+      <MainNavigation />
+    </header>
 
-  <RouterView />
+    <RouterView />
+  </div>
 </template>

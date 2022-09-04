@@ -41,5 +41,11 @@ export default function generateApplicationRoutes(): RouteRecordRaw[] {
       component: () => import("@/views/HomeView.vue"),
       beforeEnter: redirectToLoginIfUnauthenticated,
     },
+    {
+      path: "/profile",
+      name: "profile",
+      component: () => import("@/views/ProfileView.vue"),
+      beforeEnter: redirectToLoginIfUnauthenticated,
+    },
   ];
 }
