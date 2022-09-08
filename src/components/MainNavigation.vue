@@ -18,7 +18,7 @@ const isAuthenticated = computed(
       </p>
       <RouterLink
         :to="{ name: 'home' }"
-        data-test="home"
+        data-test="home-navigation-link"
         exact-active-class="hidden"
       >
         <svg
@@ -38,7 +38,7 @@ const isAuthenticated = computed(
       </RouterLink>
       <RouterLink
         :to="{ name: 'profile' }"
-        data-test="profile"
+        data-test="profile-navigation-link"
         active-class="hidden"
       >
         <svg
@@ -63,10 +63,10 @@ const isAuthenticated = computed(
       </RouterLink>
     </section>
 
-    <section v-else class="flex space-x-1 justify-end authentication">
+    <section v-else class="flex space-x-1 justify-end">
       <RouterLink
         :to="{ name: 'login' }"
-        data-test="login"
+        data-test="login-navigation-link"
         active-class="text-sky-500"
       >
         <svg
@@ -86,7 +86,7 @@ const isAuthenticated = computed(
       </RouterLink>
       <RouterLink
         :to="{ name: 'register' }"
-        data-test="register"
+        data-test="register-navigation-link"
         active-class="text-sky-500"
       >
         <svg

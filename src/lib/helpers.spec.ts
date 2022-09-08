@@ -1,13 +1,16 @@
 import { AxiosError, type AxiosResponse } from "axios";
 import { describe, expect, it } from "vitest";
-import { nonThrowableRequest } from "./helpers";
+import { nonThrowableServerRequest } from "./helpers";
 
-describe(nonThrowableRequest.name, () => {
+describe(nonThrowableServerRequest.name, () => {
   it("returns the result of the provided callback", async () => {
     const callbackResult = { hello: "world" };
-    const callback = () => Promise.resolve(callbackResult);
+    const callback = () =>
+      Promise.resolve({ data: callbackResult } as unknown as AxiosResponse<
+        typeof callbackResult
+      >);
 
-    expect(nonThrowableRequest(callback)).resolves.toStrictEqual({
+    expect(nonThrowableServerRequest(callback)).resolves.toStrictEqual({
       result: callbackResult,
       errors: null,
     });
@@ -18,7 +21,7 @@ describe(nonThrowableRequest.name, () => {
       throw "Something wrong happened.";
     };
 
-    expect(nonThrowableRequest(callback)).resolves.toStrictEqual({
+    expect(nonThrowableServerRequest(callback)).resolves.toStrictEqual({
       result: null,
       errors: ["An error occured."],
     });
@@ -30,7 +33,7 @@ describe(nonThrowableRequest.name, () => {
       throw new Error(errorMessage);
     };
 
-    expect(nonThrowableRequest(callback)).resolves.toStrictEqual({
+    expect(nonThrowableServerRequest(callback)).resolves.toStrictEqual({
       result: null,
       errors: [errorMessage],
     });
@@ -44,7 +47,7 @@ describe(nonThrowableRequest.name, () => {
       } as AxiosResponse);
     };
 
-    expect(nonThrowableRequest(callback)).resolves.toStrictEqual({
+    expect(nonThrowableServerRequest(callback)).resolves.toStrictEqual({
       result: null,
       errors: errorMessages,
     });

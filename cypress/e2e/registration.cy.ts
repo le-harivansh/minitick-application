@@ -1,37 +1,19 @@
 describe("User registration", () => {
-  context("[rendering]", () => {
-    before(() => {
-      cy.visit("/register");
-    });
+  it("renders the register page properly", () => {
+    cy.visit("/register");
 
-    it("displays the register title", () => {
-      cy.contains("h2", "Register");
-    });
+    cy.contains("h2", "Register");
 
-    it("displays the username field", () => {
-      cy.contains("Username");
-      cy.get("#username").should(
-        "have.attr",
-        "placeholder",
-        "Your new username"
-      );
-    });
+    cy.contains("Username");
+    cy.get("#username").should("have.attr", "placeholder", "Your new username");
 
-    it("displays the password field", () => {
-      cy.contains("Password");
-      cy.get("#password").should(
-        "have.attr",
-        "placeholder",
-        "Your new password"
-      );
-    });
+    cy.contains("Password");
+    cy.get("#password").should("have.attr", "placeholder", "Your new password");
 
-    it("displays the register button", () => {
-      cy.contains('[data-test="register-button"]', "Register");
-    });
+    cy.contains('[data-test="register-button"]', "Register");
   });
 
-  it("redirects an authenticated user to / (if it tries to visit /register)", () => {
+  it("redirects authenticated users to / if they try to visit /register", () => {
     const userData = {
       username: "authenticated-user-username",
       password: "authenticated-user-password",
@@ -77,7 +59,7 @@ describe("User registration", () => {
     cy.get("#password").type(userData.password);
     cy.get('[data-test="register-button"]').click();
 
-    cy.get('[data-test="errors"]').should("be.visible");
+    cy.get('[data-test="registration-errors"]').should("be.visible");
 
     cy.location("pathname").should("equal", "/register");
 

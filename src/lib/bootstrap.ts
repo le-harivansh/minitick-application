@@ -2,7 +2,7 @@ import axios from "axios";
 import ms from "ms";
 import { useMainStore } from "../stores/main";
 import { ACCESS_TOKEN_EXPIRES_AT, REFRESH_TOKEN_EXPIRES_AT } from "./constants";
-import { nonThrowableRequest } from "./helpers";
+import { nonThrowableServerRequest } from "./helpers";
 import {
   refreshAccessTokenAndSaveExpiryToLocalStorage,
   setTimeoutToRefreshAccessToken,
@@ -14,11 +14,8 @@ export async function initializeUserInStoreIfAuthenticated() {
   const mainStore = useMainStore();
 
   const { result: userData, errors: userQueryErrors } =
-    await nonThrowableRequest(
-      async () =>
-        (
-          await axios.get<{ id: string; username: string }>("/user")
-        ).data
+    await nonThrowableServerRequest(() =>
+      axios.get<{ id: string; username: string }>("/user")
     );
 
   if (userQueryErrors) {

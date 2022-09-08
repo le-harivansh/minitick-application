@@ -1,31 +1,25 @@
-export type UnArray<T> = T extends (infer U)[] ? U : T;
+import { defineComponent } from "vue";
+import type { RouteRecordRaw } from "vue-router";
 
-export class LocalStorageMock {
-  private readonly store: Record<string, string>;
-
-  constructor() {
-    this.store = {};
-  }
-
-  get length() {
-    return Object.getOwnPropertyNames(this.store).length;
-  }
-
-  getItem(keyName: string) {
-    return this.store[keyName] ?? null;
-  }
-
-  setItem(keyName: string, keyValue: string) {
-    this.store[keyName] = keyValue;
-  }
-
-  removeItem(keyName: string) {
-    delete this.store[keyName];
-  }
-
-  clear() {
-    for (const property of Object.getOwnPropertyNames(this.store)) {
-      delete this.store[property];
-    }
-  }
-}
+export const stubbedRoutes: readonly RouteRecordRaw[] = [
+  {
+    path: "/register",
+    name: "register",
+    component: () => Promise.resolve(defineComponent({})),
+  },
+  {
+    path: "/login",
+    name: "login",
+    component: () => Promise.resolve(defineComponent({})),
+  },
+  {
+    path: "/",
+    name: "home",
+    component: () => Promise.resolve(defineComponent({})),
+  },
+  {
+    path: "/profile",
+    name: "profile",
+    component: () => Promise.resolve(defineComponent({})),
+  },
+];

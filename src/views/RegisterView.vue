@@ -2,7 +2,7 @@
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import { nonThrowableRequest } from "../lib/helpers";
+import { nonThrowableServerRequest } from "../lib/helpers";
 
 const router = useRouter();
 
@@ -16,8 +16,8 @@ const errors: string[] = reactive([]);
 async function register() {
   errors.splice(0, errors.length);
 
-  const { errors: registrationErrors } = await nonThrowableRequest(
-    async () => (await axios.post<void>("/register", userData)).data
+  const { errors: registrationErrors } = await nonThrowableServerRequest(() =>
+    axios.post<void>("/register", userData)
   );
 
   if (registrationErrors) {
@@ -34,13 +34,21 @@ async function register() {
   <main class="flex flex-col space-y-4">
     <h2 class="font-heading text-4xl text-center font-semibold">Register</h2>
 
-    <ul v-show="errors.length" data-test="errors" class="px-2 flex flex-col">
+    <ul
+      v-show="errors.length"
+      class="px-2 flex flex-col"
+      data-test="registration-errors"
+    >
       <li v-for="error in errors" :key="error" class="text-sm text-red-500">
         {{ error }}
       </li>
     </ul>
 
-    <form @submit.prevent="register" class="flex flex-col space-y-2">
+    <form
+      @submit.prevent="register"
+      class="flex flex-col space-y-2"
+      data-test="registration-form"
+    >
       <section class="flex flex-col space-y-1">
         <label for="username" class="font-semibold">Username:</label>
         <input

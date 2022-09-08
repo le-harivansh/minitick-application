@@ -19,7 +19,6 @@ import {
   ACCESS_TOKEN_EXPIRES_AT,
   REFRESH_TOKEN_EXPIRES_AT,
 } from "../constants";
-import { LocalStorageMock } from "../test/helpers";
 import {
   refreshAccessTokenAndSaveExpiryToLocalStorage,
   refreshRefreshTokenAndSaveExpiryToLocalStorage,
@@ -29,7 +28,6 @@ import {
 
 describe("Token-refresh helpers", () => {
   const server = setupServer();
-  const originalLocalStorage = localStorage;
 
   beforeAll(() => {
     vi.useFakeTimers();
@@ -37,14 +35,8 @@ describe("Token-refresh helpers", () => {
     server.listen();
   });
 
-  beforeEach(() => {
-    localStorage = new LocalStorageMock() as unknown as Storage; // eslint-disable-line no-global-assign
-  });
-
   afterEach(() => {
     server.resetHandlers();
-
-    localStorage = originalLocalStorage; // eslint-disable-line no-global-assign
   });
 
   afterAll(() => {

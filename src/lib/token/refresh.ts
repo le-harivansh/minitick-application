@@ -5,14 +5,11 @@ import {
   ACCESS_TOKEN_EXPIRES_AT,
   REFRESH_TOKEN_EXPIRES_AT,
 } from "../constants";
-import { nonThrowableRequest } from "../helpers";
+import { nonThrowableServerRequest } from "../helpers";
 
 export async function refreshAccessTokenAndSaveExpiryToLocalStorage() {
-  const { result: refreshAccessTokenResult } = await nonThrowableRequest(
-    async () =>
-      (
-        await axios.get<{ expiresAt: number }>("/refresh/access-token")
-      ).data
+  const { result: refreshAccessTokenResult } = await nonThrowableServerRequest(
+    () => axios.get<{ expiresAt: number }>("/refresh/access-token")
   );
 
   if (refreshAccessTokenResult) {
@@ -26,11 +23,8 @@ export async function refreshAccessTokenAndSaveExpiryToLocalStorage() {
 }
 
 export async function refreshRefreshTokenAndSaveExpiryToLocalStorage() {
-  const { result: refreshRefreshTokenResult } = await nonThrowableRequest(
-    async () =>
-      (
-        await axios.get<{ expiresAt: number }>("/refresh/refresh-token")
-      ).data
+  const { result: refreshRefreshTokenResult } = await nonThrowableServerRequest(
+    () => axios.get<{ expiresAt: number }>("/refresh/refresh-token")
   );
 
   if (refreshRefreshTokenResult) {

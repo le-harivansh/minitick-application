@@ -8,7 +8,7 @@ import {
   REFRESH_TOKEN_EXPIRES_AT,
   PASSWORD_CONFIRMATION_TOKEN_EXPIRES_AT,
 } from "../lib/constants";
-import { nonThrowableRequest } from "../lib/helpers";
+import { nonThrowableServerRequest } from "../lib/helpers";
 import {
   setTimeoutToRefreshAccessToken,
   setTimeoutToRefreshRefreshToken,
@@ -29,15 +29,12 @@ async function login() {
   errors.splice(0, errors.length);
 
   const { result: authenticationResult, errors: authenticationErrors } =
-    await nonThrowableRequest(
-      async () =>
-        (
-          await axios.post<{
-            accessToken: { expiresAt: number };
-            refreshToken: { expiresAt: number };
-            passwordConfirmationToken: { expiresAt: number };
-          }>("/login", userCredentials)
-        ).data
+    await nonThrowableServerRequest(() =>
+      axios.post<{
+        accessToken: { expiresAt: number };
+        refreshToken: { expiresAt: number };
+        passwordConfirmationToken: { expiresAt: number };
+      }>("/login", userCredentials)
     );
 
   if (authenticationErrors) {
@@ -60,11 +57,8 @@ async function login() {
   );
 
   const { result: userData, errors: userQueryErrors } =
-    await nonThrowableRequest(
-      async () =>
-        (
-          await axios.get<{ id: string; username: string }>("/user")
-        ).data
+    await nonThrowableServerRequest(() =>
+      axios.get<{ id: string; username: string }>("/user")
     );
 
   if (userQueryErrors) {
@@ -96,13 +90,21 @@ async function login() {
   <main class="flex flex-col space-y-4">
     <h2 class="font-heading text-4xl text-center font-semibold">Login</h2>
 
-    <ul v-show="errors.length" data-test="errors" class="px-2 flex flex-col">
+    <ul
+      v-show="errors.length"
+      class="px-2 flex flex-col"
+      data-test="login-errors"
+    >
       <li v-for="error in errors" :key="error" class="text-sm text-red-500">
         {{ error }}
       </li>
     </ul>
 
-    <form @submit.prevent="login" class="flex flex-col space-y-2">
+    <form
+      @submit.prevent="login"
+      class="flex flex-col space-y-2"
+      data-test="login-form"
+    >
       <section class="flex flex-col space-y-1">
         <label for="username" class="font-semibold">Username:</label>
         <input

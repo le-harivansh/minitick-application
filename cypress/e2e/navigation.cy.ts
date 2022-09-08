@@ -5,8 +5,8 @@ describe("Main navigation", () => {
     });
 
     it("should show the register & login buttons", () => {
-      cy.get('[data-test="register"]').should("be.visible");
-      cy.get('[data-test="login"]').should("be.visible");
+      cy.get('[data-test="register-navigation-link"]').should("be.visible");
+      cy.get('[data-test="login-navigation-link"]').should("be.visible");
     });
   });
 
@@ -16,8 +16,8 @@ describe("Main navigation", () => {
     });
 
     it("should show the register & login buttons", () => {
-      cy.get('[data-test="register"]').should("be.visible");
-      cy.get('[data-test="login"]').should("be.visible");
+      cy.get('[data-test="register-navigation-link"]').should("be.visible");
+      cy.get('[data-test="login-navigation-link"]').should("be.visible");
     });
   });
 
@@ -39,8 +39,8 @@ describe("Main navigation", () => {
     });
 
     it("should not display the register & login buttons", () => {
-      cy.get('[data-test="register"]').should("not.exist");
-      cy.get('[data-test="login"]').should("not.exist");
+      cy.get('[data-test="register-navigation-link"]').should("not.exist");
+      cy.get('[data-test="login-navigation-link"]').should("not.exist");
     });
 
     it("should display the authenticated user's username", () => {
@@ -48,11 +48,11 @@ describe("Main navigation", () => {
     });
 
     it("should display the profile link", () => {
-      cy.get('[data-test="profile"]').should("be.visible");
+      cy.get('[data-test="profile-navigation-link"]').should("be.visible");
     });
 
     it("should not display the home link", () => {
-      cy.get('[data-test="home"]').should("not.be.visible");
+      cy.get('[data-test="home-navigation-link"]').should("not.be.visible");
     });
   });
 
@@ -74,11 +74,11 @@ describe("Main navigation", () => {
     });
 
     it("should display the home link", () => {
-      cy.get('[data-test="home"]').should("be.visible");
+      cy.get('[data-test="home-navigation-link"]').should("be.visible");
     });
 
     it("should not display the profile link", () => {
-      cy.get('[data-test="profile"]').should("not.be.visible");
+      cy.get('[data-test="profile-navigation-link"]').should("not.be.visible");
     });
   });
 });

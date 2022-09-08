@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import { reactive, ref, watch } from "vue";
-import { PASSWORD_CONFIRMATION_TOKEN_EXPIRES_AT } from "../lib/constants";
-import { nonThrowableRequest } from "../lib/helpers";
+import { nonThrowableServerRequest } from "../lib/helpers";
 
 const emit = defineEmits<{
   (event: "passwordConfirmed", expiresAt: number): void;
@@ -10,10 +9,10 @@ const emit = defineEmits<{
 
 const isOpen = ref(false);
 const password = ref("");
-const errors: string[] = reactive([]);
+const errors = reactive<string[]>([]);
 
-watch(isOpen, (value) => {
-  if (!value) {
+watch(isOpen, (isOpen) => {
+  if (!isOpen) {
     password.value = "";
   }
 });
@@ -24,14 +23,10 @@ async function confirmPassword() {
   const {
     result: refreshPasswordConfirmationTokenResult,
     errors: refreshPasswordConfirmationTokenErrors,
-  } = await nonThrowableRequest(
-    async () =>
-      (
-        await axios.post<{ expiresAt: number }>(
-          "/refresh/password-confirmation-token",
-          { password: password.value }
-        )
-      ).data
+  } = await nonThrowableServerRequest(() =>
+    axios.post<{ expiresAt: number }>("/refresh/password-confirmation-token", {
+      password: password.value,
+    })
   );
 
   if (refreshPasswordConfirmationTokenErrors) {
@@ -41,11 +36,6 @@ async function confirmPassword() {
     );
   }
 
-  localStorage.setItem(
-    PASSWORD_CONFIRMATION_TOKEN_EXPIRES_AT,
-    refreshPasswordConfirmationTokenResult.expiresAt.toString()
-  );
-
   isOpen.value = false;
 
   emit("passwordConfirmed", refreshPasswordConfirmationTokenResult.expiresAt);
@@ -54,7 +44,11 @@ async function confirmPassword() {
 
 <template>
   <div>
-    <button @click="isOpen = true" data-test="show-password-confirmation-modal">
+    <button
+      type="button"
+      @click="isOpen = true"
+      data-test="show-password-confirmation-modal-button"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -79,8 +73,9 @@ async function confirmPassword() {
       >
         <section class="flex justify-end mb-4">
           <button
+            type="button"
             @click="isOpen = false"
-            data-test="close-password-confirmation-modal"
+            data-test="close-password-confirmation-modal-button"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -105,8 +100,8 @@ async function confirmPassword() {
 
           <ul
             v-show="errors.length"
-            data-test="errors"
             class="px-2 flex flex-col"
+            data-test="password-confirmation-errors"
           >
             <li
               v-for="error in errors"
@@ -120,6 +115,7 @@ async function confirmPassword() {
           <form
             @submit.prevent="confirmPassword"
             class="flex flex-col space-y-2"
+            data-test="submit-confirm-password-form"
           >
             <section class="flex flex-col space-y-2">
               <label for="password" class="font-semibold">Password:</label>
@@ -139,7 +135,7 @@ async function confirmPassword() {
               <button
                 type="submit"
                 class="bg-sky-400 w-full mt-4 py-1 rounded text-white font-bold text-lg hover:shadow-md focus:outline-none"
-                data-test="confirm-password"
+                data-test="confirm-password-button"
               >
                 Confirm
               </button>

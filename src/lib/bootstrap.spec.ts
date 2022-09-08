@@ -15,7 +15,6 @@ import {
 import { useMainStore } from "../stores/main";
 import { initializeUserInStoreIfAuthenticated } from "./bootstrap";
 import { ACCESS_TOKEN_EXPIRES_AT, REFRESH_TOKEN_EXPIRES_AT } from "./constants";
-import { LocalStorageMock } from "./test/helpers";
 import {
   refreshAccessTokenAndSaveExpiryToLocalStorage,
   refreshRefreshTokenAndSaveExpiryToLocalStorage,
@@ -26,8 +25,6 @@ import {
 vi.mock("./token/refresh");
 
 describe(initializeUserInStoreIfAuthenticated.name, () => {
-  const originalLocalStorage = localStorage;
-
   const userData = { id: "user-id", username: "user-username" };
 
   const server = setupServer(
@@ -42,13 +39,9 @@ describe(initializeUserInStoreIfAuthenticated.name, () => {
 
   beforeEach(() => {
     setActivePinia(createPinia());
-
-    localStorage = new LocalStorageMock() as unknown as Storage; // eslint-disable-line no-global-assign
   });
 
   afterEach(() => {
-    localStorage = originalLocalStorage; // eslint-disable-line no-global-assign
-
     vi.clearAllMocks();
   });
 

@@ -5,31 +5,18 @@ import {
 } from "../support/constants";
 
 describe("User authentication", () => {
-  context("[rendering]", () => {
-    before(() => {
-      cy.visit("/login");
-    });
+  it("renders the login page properly", () => {
+    cy.visit("/login");
 
-    it("displays the login title", () => {
-      cy.contains("h2", "Login");
-    });
-
-    it("displays the username field", () => {
-      cy.contains("Username");
-      cy.get("#username").should("have.attr", "placeholder", "Your username");
-    });
-
-    it("displays the password field", () => {
-      cy.contains("Password");
-      cy.get("#password").should("have.attr", "placeholder", "Your password");
-    });
-
-    it("displays the login button", () => {
-      cy.contains('[data-test="login-button"]', "Login");
-    });
+    cy.contains("h2", "Login");
+    cy.contains("Username");
+    cy.get("#username").should("have.attr", "placeholder", "Your username");
+    cy.contains("Password");
+    cy.get("#password").should("have.attr", "placeholder", "Your password");
+    cy.contains('[data-test="login-button"]', "Login");
   });
 
-  it("redirects an authenticated user to / (if it tries to visit /login)", () => {
+  it("redirects authenticated users to / if they try to visit /login", () => {
     const userData = {
       username: "authenticated-user-username",
       password: "authenticated-user-password",
@@ -44,7 +31,7 @@ describe("User authentication", () => {
     cy.deleteUser(userData.username, userData.password);
   });
 
-  it("authenticates a user with the correct credentials, and redirects it to the home page", () => {
+  it("authenticates users with the correct credentials, and redirects them to /", () => {
     const userCredentials = {
       username: "authenticated-user-username",
       password: "authenticated-user-password",
@@ -95,7 +82,7 @@ describe("User authentication", () => {
     cy.get("#password").type("invalid-password");
     cy.get('[data-test="login-button"]').click();
 
-    cy.get('[data-test="errors"]').should("be.visible");
+    cy.get('[data-test="login-errors"]').should("be.visible");
 
     cy.location("pathname").should("equal", "/login");
   });
@@ -111,6 +98,6 @@ describe("User authentication", () => {
     cy.get("#password").type("invalid-password");
     cy.get('[data-test="login-button"]').click();
 
-    cy.get('[data-test="errors"] li').should("have.length", 1);
+    cy.get('[data-test="login-errors"] li').should("have.length", 1);
   });
 });

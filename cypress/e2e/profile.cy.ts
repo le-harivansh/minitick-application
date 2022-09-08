@@ -38,15 +38,15 @@ describe("User profile", () => {
 
     it("correctly renders the view", () => {
       cy.contains("h2", "Profile");
-      cy.contains('[data-test="logout-current-session"]', "Log out");
-      cy.get('[data-test="show-password-confirmation-modal"]').should(
+      cy.contains('[data-test="logout-current-session-button"]', "Log out");
+      cy.get('[data-test="show-password-confirmation-modal-button"]').should(
         "not.be.visible"
       );
 
       // 1 second after the password-confirmation token becomes stale
       cy.tick(PASSWORD_CONFIRMATION_TOKEN_EXPIRES_IN + 1000 * 1);
 
-      cy.get('[data-test="show-password-confirmation-modal"]').should(
+      cy.get('[data-test="show-password-confirmation-modal-button"]').should(
         "be.visible"
       );
     });
@@ -55,22 +55,33 @@ describe("User profile", () => {
       // 1 second after the password-confirmation token becomes stale
       cy.tick(PASSWORD_CONFIRMATION_TOKEN_EXPIRES_IN + 1000 * 1);
 
-      cy.get('[data-test="delete-account"]').should("have.attr", "disabled");
-      cy.get('[data-test="logout-other-sessions"]').should(
+      cy.get('[data-test="delete-account-button"]').should(
+        "have.attr",
+        "disabled"
+      );
+      cy.get('[data-test="logout-other-sessions-button"]').should(
         "have.attr",
         "disabled"
       );
 
-      cy.get("#update-username").should("have.value", userData.username);
-      cy.get('[data-test="edit-username"]').should("not.exist");
+      cy.get("#update-field-username")
+        .should("have.value", userData.username)
+        .and("have.attr", "disabled");
+      cy.get('#update-field-username ~ [data-test="edit-field-button"]').should(
+        "not.exist"
+      );
 
-      cy.get("#update-password").should("be.visible");
-      cy.get('[data-test="edit-password"]').should("not.exist");
+      cy.get("#update-field-password")
+        .should("be.visible")
+        .and("have.attr", "disabled");
+      cy.get(
+        '#update-field-password ~ [data-test="update-field-button"]'
+      ).should("not.exist");
     });
 
     context("Log out", () => {
       beforeEach(() => {
-        cy.get('[data-test="logout-current-session"]').click();
+        cy.get('[data-test="logout-current-session-button"]').click();
       });
 
       it("redirects the user to the login page after logging out", () => {
@@ -88,7 +99,7 @@ describe("User profile", () => {
     });
 
     it("remains on the profile page when logging out of other sessions", () => {
-      cy.get('[data-test="logout-other-sessions"]').click();
+      cy.get('[data-test="logout-other-sessions-button"]').click();
 
       cy.location("pathname").should("equal", "/profile");
     });
@@ -108,7 +119,7 @@ describe("User profile", () => {
 
       cy.visit("/profile");
 
-      cy.get('[data-test="show-password-confirmation-modal"]').click();
+      cy.get('[data-test="show-password-confirmation-modal-button"]').click();
     });
 
     afterEach(() => {
@@ -119,43 +130,45 @@ describe("User profile", () => {
       cy.get('[data-test="password-confirmation-modal"]').should("be.visible");
 
       cy.contains("h2", "Confirm your password");
-      cy.get('[data-test="close-password-confirmation-modal"]').should(
+      cy.get('[data-test="close-password-confirmation-modal-button"]').should(
         "be.visible"
       );
-      cy.get('[data-test="errors"]').should("not.be.visible");
+      cy.get('[data-test="password-confirmation-errors"]').should(
+        "not.be.visible"
+      );
       cy.contains("label", "Password");
       cy.get("#password").should("have.attr", "placeholder", "Your password");
-      cy.contains('[data-test="confirm-password"]', "Confirm");
+      cy.contains('[data-test="confirm-password-button"]', "Confirm");
     });
 
     it("closes the modal if the 'close' button is clicked", () => {
-      cy.get('[data-test="close-password-confirmation-modal"]').click();
+      cy.get('[data-test="close-password-confirmation-modal-button"]').click();
 
       cy.get('[data-test="password-confirmation-modal"]').should("not.exist");
     });
 
     it("displays any received error messages if the password confirmation failed", () => {
       cy.get("#password").type("incorrect-password");
-      cy.get('[data-test="confirm-password"]').click();
+      cy.get('[data-test="confirm-password-button"]').click();
 
-      cy.get('[data-test="errors"]').should("be.visible");
+      cy.get('[data-test="password-confirmation-errors"]').should("be.visible");
     });
 
     it("closes the password-confirmation modal and hides the password-confirmation button if the password-confirmation succeeds", () => {
       cy.get("#password").type(userData.password);
-      cy.get('[data-test="confirm-password"]').click();
+      cy.get('[data-test="confirm-password-button"]').click();
 
       cy.get('[data-test="password-confirmation-modal"]').should("not.exist");
-      cy.get('[data-test="show-password-confirmation-modal"]').should(
+      cy.get('[data-test="show-password-confirmation-modal-button"]').should(
         "not.be.visible"
       );
     });
 
     it("clears the password field when closing the modal", () => {
       cy.get("#password").type("a-password");
-      cy.get('[data-test="close-password-confirmation-modal"]').click();
+      cy.get('[data-test="close-password-confirmation-modal-button"]').click();
 
-      cy.get('[data-test="show-password-confirmation-modal"]').click();
+      cy.get('[data-test="show-password-confirmation-modal-button"]').click();
       cy.get("#password").invoke("val").should("be.empty");
     });
   });
@@ -171,7 +184,23 @@ describe("User profile", () => {
       cy.loginUser(userData.username, userData.password);
 
       cy.visit("/profile");
-      cy.get('[data-test="edit-username"]').click();
+      cy.get(
+        '#update-field-username ~ [data-test="edit-field-button"]'
+      ).click();
+    });
+
+    it("successfully updates the username", () => {
+      const newUsername = "new-username";
+
+      cy.get("#update-field-username").clear();
+      cy.get("#update-field-username").type(newUsername);
+      cy.get(
+        '#update-field-username ~ [data-test="update-field-button"]'
+      ).click();
+
+      cy.get("#update-field-username").should("have.value", newUsername);
+
+      cy.deleteUser(newUsername, userData.password);
     });
 
     context("Non username-updating tests", () => {
@@ -180,17 +209,29 @@ describe("User profile", () => {
       });
 
       it("displays the input-field, update and cancel buttons when editing", () => {
-        cy.get("#update-username").should("have.value", userData.username);
-        cy.get('[data-test="update-username"]').should("be.visible");
-        cy.get('[data-test="cancel-username-edit"]').should("be.visible");
+        cy.get("#update-field-username").should(
+          "have.value",
+          userData.username
+        );
+        cy.get(
+          '#update-field-username ~ [data-test="update-field-button"]'
+        ).should("be.visible");
+        cy.get(
+          '#update-field-username ~ [data-test="cancel-edit-field-button"]'
+        ).should("be.visible");
       });
 
       it("resets the edit-username input if the editing-session is cancelled", () => {
-        cy.get("#update-username").clear();
-        cy.get("#update-username").type("one-two-three");
+        cy.get("#update-field-username").clear();
+        cy.get("#update-field-username").type("one-two-three");
 
-        cy.get('[data-test="cancel-username-edit"]').click();
-        cy.get("#update-username").should("have.value", userData.username);
+        cy.get(
+          '#update-field-username ~ [data-test="cancel-edit-field-button"]'
+        ).click();
+        cy.get("#update-field-username").should(
+          "have.value",
+          userData.username
+        );
       });
 
       it("shows any errors that occur during the editing process", () => {
@@ -201,46 +242,41 @@ describe("User profile", () => {
 
         cy.registerUser(anotherUserData.username, anotherUserData.password);
 
-        cy.get("#update-username").clear();
-        cy.get("#update-username").type(anotherUserData.username);
-        cy.get('[data-test="update-username"]').click();
+        cy.get("#update-field-username").clear();
+        cy.get("#update-field-username").type(anotherUserData.username);
+        cy.get(
+          '#update-field-username ~ [data-test="update-field-button"]'
+        ).click();
 
-        cy.get('[data-test="username-update-errors"]').should("be.visible");
+        cy.get('[data-test="profile-view-errors"]').should("be.visible");
 
         cy.deleteUser(anotherUserData.username, anotherUserData.password);
       });
     });
 
-    it("successfully updates the username", () => {
-      const newUsername = "new-username";
-
-      cy.get("#update-username").clear();
-      cy.get("#update-username").type(newUsername);
-      cy.get('[data-test="update-username"]').click();
-
-      cy.get("#update-username").should("have.value", newUsername);
-
-      cy.deleteUser(newUsername, userData.password);
-    });
-
     context("Password is no longer confirmed", () => {
-      const anotherUserData = {
-        username: "username-3002",
-        password: "password-3002",
-      };
-
       it("resets the username-field and clears the errors", () => {
+        const anotherUserData = {
+          username: "username-3002",
+          password: "password-3002",
+        };
+
         cy.registerUser(anotherUserData.username, anotherUserData.password);
+
         cy.loginUser(userData.username, userData.password);
 
         cy.clock(Date.now());
 
         cy.visit("/profile");
-        cy.get('[data-test="edit-username"]').click();
+        cy.get(
+          '#update-field-username ~ [data-test="edit-field-button"]'
+        ).click();
 
-        cy.get("#update-username").clear();
-        cy.get("#update-username").type(anotherUserData.username);
-        cy.get('[data-test="update-username"]').click();
+        cy.get("#update-field-username").clear();
+        cy.get("#update-field-username").type(anotherUserData.username);
+        cy.get(
+          '#update-field-username ~ [data-test="update-field-button"]'
+        ).click();
 
         /**
          * Wait until the password-confirmation token is stale.
@@ -252,8 +288,11 @@ describe("User profile", () => {
          */
         cy.tick(1000 * 60 * 10);
 
-        cy.get("#update-username").should("have.value", userData.username);
-        cy.get('[data-test="username-update-errors"]').should("not.be.visible");
+        cy.get("#update-field-username").should(
+          "have.value",
+          userData.username
+        );
+        cy.get('[data-test="profile-view-errors"]').should("not.exist");
 
         cy.deleteUser(userData.username, userData.password);
         cy.deleteUser(anotherUserData.username, anotherUserData.password);
@@ -272,7 +311,22 @@ describe("User profile", () => {
       cy.loginUser(userData.username, userData.password);
 
       cy.visit("/profile");
-      cy.get('[data-test="edit-password"]').click();
+      cy.get(
+        '#update-field-password ~ [data-test="edit-field-button"]'
+      ).click();
+    });
+
+    it("successfully updates the password", () => {
+      const newPassword = "le-new-password";
+
+      cy.get("#update-field-password").type(newPassword);
+      cy.get(
+        '#update-field-password ~ [data-test="update-field-button"]'
+      ).click();
+
+      cy.get("#update-field-password").should("have.value", "");
+
+      cy.deleteUser(userData.username, newPassword);
     });
 
     context("Non password-updating tests", () => {
@@ -281,94 +335,23 @@ describe("User profile", () => {
       });
 
       it("displays the input-field, update and cancel buttons when editing", () => {
-        cy.get("#update-password").should("have.value", "");
-        cy.get('[data-test="update-password"]').should("be.visible");
-        cy.get('[data-test="cancel-password-edit"]').should("be.visible");
+        cy.get("#update-field-password").should("have.value", "");
+        cy.get(
+          '#update-field-password ~ [data-test="update-field-button"]'
+        ).should("be.visible");
+        cy.get(
+          '#update-field-password ~ [data-test="cancel-edit-field-button"]'
+        ).should("be.visible");
       });
 
       it("resets the edit-username input if the editing-session is cancelled", () => {
-        cy.get("#update-password").type("one-two-three");
+        cy.get("#update-field-password").type("one-two-three");
 
-        cy.get('[data-test="cancel-password-edit"]').click();
-        cy.get("#update-password").invoke("val").should("be.be.empty");
+        cy.get(
+          '#update-field-password ~ [data-test="cancel-edit-field-button"]'
+        ).click();
+        cy.get("#update-field-password").invoke("val").should("be.be.empty");
       });
-
-      it("shows any errors that occur during the editing process", () => {
-        const errorMessage = "The password provided is incorrect";
-
-        cy.intercept("PATCH", `${Cypress.env("SERVER_URL")}/user`, {
-          statusCode: 400,
-          body: {
-            statusCode: 400,
-            message: [errorMessage],
-            error: "Bad Request",
-          },
-        });
-
-        cy.get("#update-password").type("another-password");
-        cy.get('[data-test="update-password"]').click();
-
-        cy.get('[data-test="password-update-errors"]').should(
-          "contain",
-          errorMessage
-        );
-      });
-
-      context("Password is no longer confirmed", () => {
-        it("resets the password-field and clears the errors", () => {
-          const errorMessage = "The password provided is incorrect";
-
-          cy.intercept("PATCH", `${Cypress.env("SERVER_URL")}/user`, {
-            statusCode: 400,
-            body: {
-              statusCode: 400,
-              message: [errorMessage],
-              error: "Bad Request",
-            },
-          });
-
-          cy.loginUser(userData.username, userData.password);
-
-          cy.clock(Date.now());
-
-          cy.visit("/profile");
-          cy.get('[data-test="edit-password"]').click();
-
-          cy.get("#update-password").type("a-password");
-          cy.get('[data-test="update-password"]').click();
-
-          cy.get('[data-test="password-update-errors"]').should(
-            "contain",
-            errorMessage
-          );
-
-          /**
-           * Wait until the password-confirmation token is stale.
-           * This should happen in 5 minutes.
-           * We are waiting for 10 minutes just to be sure.
-           *
-           * If this fails, see the `JWT_PASSWORD_CONFIRMATION_TOKEN_DURATION`
-           * environment variable on the server.
-           */
-          cy.tick(1000 * 60 * 10);
-
-          cy.get("#update-password").should("have.value", "");
-          cy.get('[data-test="password-update-errors"]').should(
-            "not.be.visible"
-          );
-        });
-      });
-    });
-
-    it("successfully updates the password", () => {
-      const newPassword = "le-new-password";
-
-      cy.get("#update-password").type(newPassword);
-      cy.get('[data-test="update-password"]').click();
-
-      cy.get("#update-password").should("have.value", "");
-
-      cy.deleteUser(userData.username, newPassword);
     });
   });
 
@@ -383,11 +366,11 @@ describe("User profile", () => {
       cy.loginUser(userData.username, userData.password);
 
       cy.visit("/profile");
-      cy.get('[data-test="delete-account"]').click();
+      cy.get('[data-test="delete-account-button"]').click();
     });
 
-    it("redirects the user to the login page after logging out", () => {
-      cy.location("pathname").should("equal", "/login");
+    it("redirects the user to the register page after logging out", () => {
+      cy.location("pathname").should("equal", "/register");
     });
 
     it("removes all the token expiry timestamps from localStorage", () => {
