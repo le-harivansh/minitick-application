@@ -28,8 +28,7 @@ describe("Main navigation", () => {
     };
 
     beforeEach(() => {
-      cy.registerUser(userData.username, userData.password);
-      cy.loginUser(userData.username, userData.password);
+      cy.registerUser(userData.username, userData.password).loginUser();
 
       cy.visit("/");
     });
@@ -63,8 +62,7 @@ describe("Main navigation", () => {
     };
 
     beforeEach(() => {
-      cy.registerUser(userData.username, userData.password);
-      cy.loginUser(userData.username, userData.password);
+      cy.registerUser(userData.username, userData.password).loginUser();
 
       cy.visit("/profile");
     });

@@ -112,10 +112,11 @@ describe("User profile", () => {
     };
 
     beforeEach(() => {
-      cy.registerUser(userData.username, userData.password);
-      cy.loginUser(userData.username, userData.password).then(() => {
-        localStorage.removeItem(PASSWORD_CONFIRMATION_TOKEN_EXPIRES_AT);
-      });
+      cy.registerUser(userData.username, userData.password)
+        .loginUser()
+        .then(() => {
+          localStorage.removeItem(PASSWORD_CONFIRMATION_TOKEN_EXPIRES_AT);
+        });
 
       cy.visit("/profile");
 
@@ -180,8 +181,7 @@ describe("User profile", () => {
     };
 
     beforeEach(() => {
-      cy.registerUser(userData.username, userData.password);
-      cy.loginUser(userData.username, userData.password);
+      cy.registerUser(userData.username, userData.password).loginUser();
 
       cy.visit("/profile");
       cy.get(
@@ -307,8 +307,7 @@ describe("User profile", () => {
     };
 
     beforeEach(() => {
-      cy.registerUser(userData.username, userData.password);
-      cy.loginUser(userData.username, userData.password);
+      cy.registerUser(userData.username, userData.password).loginUser();
 
       cy.visit("/profile");
       cy.get(
@@ -362,8 +361,7 @@ describe("User profile", () => {
     };
 
     beforeEach(() => {
-      cy.registerUser(userData.username, userData.password);
-      cy.loginUser(userData.username, userData.password);
+      cy.registerUser(userData.username, userData.password).loginUser();
 
       cy.visit("/profile");
       cy.get('[data-test="delete-account-button"]').click();

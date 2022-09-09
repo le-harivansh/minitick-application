@@ -22,8 +22,7 @@ describe("User authentication", () => {
       password: "authenticated-user-password",
     };
 
-    cy.registerUser(userData.username, userData.password);
-    cy.loginUser(userData.username, userData.password);
+    cy.registerUser(userData.username, userData.password).loginUser();
 
     cy.visit("/login");
     cy.location("pathname").should("equal", "/");
