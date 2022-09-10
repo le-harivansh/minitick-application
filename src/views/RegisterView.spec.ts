@@ -6,7 +6,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { stubbedRoutes } from "../lib/test/helpers";
 import RegisterView from "./RegisterView.vue";
 
-function createWrapper() {
+function createWrapper(mountOptions?: { stubs: Record<string, boolean> }) {
   const router = createRouter({
     history: createWebHistory(),
     routes: stubbedRoutes,
@@ -15,6 +15,9 @@ function createWrapper() {
   const wrapper = shallowMount(RegisterView, {
     global: {
       plugins: [router],
+      stubs: {
+        ...(mountOptions?.stubs ?? {}),
+      },
     },
   });
 
@@ -24,7 +27,7 @@ function createWrapper() {
   };
 }
 
-describe(RegisterView.name, () => {
+describe("RegisterView", () => {
   const server = setupServer();
 
   beforeAll(() => {
@@ -33,18 +36,6 @@ describe(RegisterView.name, () => {
 
   afterAll(() => {
     server.close();
-  });
-
-  it("renders the view properly", () => {
-    const { wrapper } = createWrapper();
-
-    expect(wrapper.text()).toContain("Username");
-    expect(wrapper.get("#username").isVisible()).toBe(true);
-
-    expect(wrapper.text()).toContain("Password");
-    expect(wrapper.get("#password").isVisible()).toBe(true);
-
-    expect(wrapper.get('[data-test="register-button"]').isVisible()).toBe(true);
   });
 
   describe("on request failure", () => {
@@ -58,11 +49,7 @@ describe(RegisterView.name, () => {
         rest.post("/register", (_, response, context) =>
           response(
             context.status(400),
-            context.json({
-              statusCode: 400,
-              message: errorMessages,
-              error: "Bad Request",
-            })
+            context.json({ message: errorMessages })
           )
         )
       );
@@ -73,7 +60,9 @@ describe(RegisterView.name, () => {
     });
 
     it("displays any errors that occur during the registration request", async () => {
-      const { wrapper } = createWrapper();
+      const { wrapper } = createWrapper({
+        stubs: { ErrorList: false, PasswordInput: false },
+      });
 
       await wrapper.get("#username").setValue("le-username");
       await wrapper.get("#password").setValue("le-password");
@@ -93,7 +82,9 @@ describe(RegisterView.name, () => {
     });
 
     it("clears any previous errors before retrying the registration request", async () => {
-      const { wrapper } = createWrapper();
+      const { wrapper } = createWrapper({
+        stubs: { ErrorList: false, PasswordInput: false },
+      });
 
       await wrapper.get("#username").setValue("le-username");
       await wrapper.get("#password").setValue("le-password");
@@ -106,11 +97,21 @@ describe(RegisterView.name, () => {
       await wrapper.get('[data-test="registration-form"]').trigger("submit");
 
       await flushPromises();
+
+      errorMessages.forEach((errorMessage) =>
+        expect(
+          wrapper.get('[data-test="registration-errors"]').text()
+        ).toContain(errorMessage)
+      );
 
       expect(
-        wrapper.get<HTMLUListElement>('[data-test="registration-errors"]')
-          .element.childElementCount
-      ).toBe(errorMessages.length);
+        wrapper.get('[data-test="registration-errors"]').text().length
+      ).toBe(
+        errorMessages.reduce(
+          (previousValue, currentError) => previousValue + currentError.length,
+          0
+        )
+      );
     });
   });
 
@@ -128,7 +129,9 @@ describe(RegisterView.name, () => {
     });
 
     it("redirects to /login when the registration is successful", async () => {
-      const { wrapper, router } = createWrapper();
+      const { wrapper, router } = createWrapper({
+        stubs: { PasswordInput: false },
+      });
 
       await wrapper.get("#username").setValue("le-username");
       await wrapper.get("#password").setValue("le-password");

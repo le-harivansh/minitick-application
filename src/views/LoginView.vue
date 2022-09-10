@@ -14,6 +14,7 @@ import {
   setTimeoutToRefreshRefreshToken,
 } from "../lib/token/refresh";
 import { useMainStore } from "../stores/main";
+import ErrorList from "../components/ErrorList.vue";
 
 const router = useRouter();
 const mainStore = useMainStore();
@@ -38,9 +39,7 @@ async function login() {
     );
 
   if (authenticationErrors) {
-    return authenticationErrors.forEach((authenticationError) =>
-      errors.push(authenticationError)
-    );
+    return errors.push(...authenticationErrors);
   }
 
   localStorage.setItem(
@@ -90,15 +89,11 @@ async function login() {
   <main class="flex flex-col space-y-4">
     <h2 class="font-heading text-4xl text-center font-semibold">Login</h2>
 
-    <ul
+    <ErrorList
       v-show="errors.length"
-      class="px-2 flex flex-col"
+      :errors="errors"
       data-test="login-errors"
-    >
-      <li v-for="error in errors" :key="error" class="text-sm text-red-500">
-        {{ error }}
-      </li>
-    </ul>
+    />
 
     <form
       @submit.prevent="login"

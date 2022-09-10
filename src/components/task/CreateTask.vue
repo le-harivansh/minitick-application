@@ -11,6 +11,7 @@ const emit = defineEmits<{
   (event: "error", errors: string[]): void;
 }>();
 
+const isFocused = ref(false);
 const newTaskTitle = ref("");
 
 async function createTask() {
@@ -37,21 +38,33 @@ async function createTask() {
 </script>
 
 <template>
-  <form @submit.prevent="createTask" data-test="create-task-form">
+  <form
+    @submit.prevent="createTask"
+    class="flex items-center p-1 border-2 rounded-md"
+    :class="[isFocused ? 'border-sky-400' : 'border-slate-300']"
+    data-test="create-task-form"
+  >
     <input
       type="text"
+      class="flex-1 focus:outline-none bg-transparent"
       v-model="newTaskTitle"
-      data-test="create-task-input"
       required
+      @focusin="isFocused = true"
+      @focusout="isFocused = false"
+      data-test="create-task-input"
     />
-    <button type="submit" data-test="create-task-button">
+    <button
+      type="submit"
+      class="p-1 bg-green-500 text-white rounded-lg hover:shadow-md"
+      data-test="create-task-button"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="w-6 h-6"
+        class="w-5 h-5"
       >
         <path
           stroke-linecap="round"

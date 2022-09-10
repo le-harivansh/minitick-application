@@ -292,7 +292,7 @@ describe("User profile", () => {
           "have.value",
           userData.username
         );
-        cy.get('[data-test="profile-view-errors"]').should("not.exist");
+        cy.get('[data-test="profile-view-errors"]').should("not.be.visible");
 
         cy.deleteUser(userData.username, userData.password);
         cy.deleteUser(anotherUserData.username, anotherUserData.password);

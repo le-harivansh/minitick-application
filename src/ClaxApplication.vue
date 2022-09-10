@@ -4,7 +4,9 @@ import MainNavigation from "@/components/MainNavigation.vue";
 </script>
 
 <template>
-  <div class="w-full h-full bg-slate-100 p-2 font-body">
+  <div
+    class="flex-1 max-w-sm h-full p-2 font-body bg-slate-100 shadow-lg sm:rounded-lg"
+  >
     <header class="mb-2">
       <MainNavigation />
     </header>

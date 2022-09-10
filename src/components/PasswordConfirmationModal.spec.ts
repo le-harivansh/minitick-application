@@ -15,7 +15,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import PasswordConfirmationModal from "./PasswordConfirmationModal.vue";
 import { stubbedRoutes } from "../lib/test/helpers";
 
-function createWrapper() {
+function createWrapper(mountOptions?: { stubs: Record<string, boolean> }) {
   return shallowMount(PasswordConfirmationModal, {
     global: {
       plugins: [
@@ -24,12 +24,13 @@ function createWrapper() {
       ],
       stubs: {
         teleport: true,
+        ...(mountOptions?.stubs ?? {}),
       },
     },
   });
 }
 
-describe(PasswordConfirmationModal.name, () => {
+describe("PasswordConfirmationModal", () => {
   const server = setupServer();
 
   beforeAll(() => {
@@ -110,11 +111,7 @@ describe(PasswordConfirmationModal.name, () => {
           (_, response, context) =>
             response(
               context.status(400),
-              context.json({
-                statusCode: 400,
-                message: refreshPasswordConfirmationTokenErrors,
-                error: "Bad Request",
-              })
+              context.json({ message: refreshPasswordConfirmationTokenErrors })
             )
         )
       );
@@ -125,7 +122,7 @@ describe(PasswordConfirmationModal.name, () => {
     });
 
     it("displays any errors from the request", async () => {
-      const wrapper = createWrapper();
+      const wrapper = createWrapper({ stubs: { ErrorList: false } });
 
       await wrapper
         .get('[data-test="show-password-confirmation-modal-button"]')
@@ -147,7 +144,7 @@ describe(PasswordConfirmationModal.name, () => {
     });
 
     it("clears any errors before retrying", async () => {
-      const wrapper = createWrapper();
+      const wrapper = createWrapper({ stubs: { ErrorList: false } });
 
       await wrapper
         .get('[data-test="show-password-confirmation-modal-button"]')
@@ -167,10 +164,8 @@ describe(PasswordConfirmationModal.name, () => {
       await flushPromises();
 
       expect(
-        wrapper.find<HTMLUListElement>(
-          '[data-test="password-confirmation-errors"]'
-        ).element.childElementCount
-      ).toBe(1);
+        wrapper.get('[data-test="password-confirmation-errors"]').text()
+      ).toBe(refreshPasswordConfirmationTokenErrors);
     });
   });
 

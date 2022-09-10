@@ -4,7 +4,7 @@ import { setupServer } from "msw/node";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import CreateTask from "./CreateTask.vue";
 
-describe(CreateTask.name, () => {
+describe("CreateTask", () => {
   const server = setupServer();
 
   beforeAll(() => {

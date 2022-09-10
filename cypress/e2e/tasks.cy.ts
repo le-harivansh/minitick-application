@@ -243,8 +243,8 @@ describe("Tasks CRUD", () => {
 
   context("DELETE", () => {
     const user = {
-      username: "le-username",
-      password: "le-password",
+      username: "the-username",
+      password: "the-password",
       tasks: [
         { title: "One" },
         { title: "Two", isComplete: true },

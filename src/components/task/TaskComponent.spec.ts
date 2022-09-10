@@ -10,10 +10,9 @@ import {
   expect,
   it,
 } from "vitest";
-import { nextTick } from "vue";
 import TaskComponent from "./TaskComponent.vue";
 
-describe(TaskComponent.name, () => {
+describe("TaskComponent", () => {
   const server = setupServer();
 
   beforeAll(() => {

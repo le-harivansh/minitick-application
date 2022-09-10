@@ -3,6 +3,8 @@ import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { nonThrowableServerRequest } from "../lib/helpers";
+import ErrorList from "../components/ErrorList.vue";
+import PasswordInput from "../components/PasswordInput.vue";
 
 const router = useRouter();
 
@@ -21,9 +23,7 @@ async function register() {
   );
 
   if (registrationErrors) {
-    return registrationErrors.forEach((registrationError) =>
-      errors.push(registrationError)
-    );
+    return errors.push(...registrationErrors);
   }
 
   return router.push({ name: "login" });
@@ -34,15 +34,11 @@ async function register() {
   <main class="flex flex-col space-y-4">
     <h2 class="font-heading text-4xl text-center font-semibold">Register</h2>
 
-    <ul
+    <ErrorList
       v-show="errors.length"
-      class="px-2 flex flex-col"
+      :errors="errors"
       data-test="registration-errors"
-    >
-      <li v-for="error in errors" :key="error" class="text-sm text-red-500">
-        {{ error }}
-      </li>
-    </ul>
+    />
 
     <form
       @submit.prevent="register"
@@ -67,17 +63,7 @@ async function register() {
 
       <section class="flex flex-col space-y-1">
         <label for="password" class="font-semibold">Password:</label>
-        <input
-          type="password"
-          id="password"
-          class="w-full px-2 py-1 rounded focus:outline-none focus:ring-2"
-          placeholder="Your new password"
-          v-model="userData.password"
-          pattern=".{8,}"
-          title="The password should be at least 8 characters long"
-          autocomplete="new-password"
-          required
-        />
+        <PasswordInput id="password" v-model="userData.password" />
       </section>
 
       <section>

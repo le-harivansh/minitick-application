@@ -4,6 +4,7 @@ import { onMounted, reactive } from "vue";
 import { nonThrowableServerRequest } from "../lib/helpers";
 import TaskComponent from "../components/task/TaskComponent.vue";
 import CreateTask from "../components/task/CreateTask.vue";
+import ErrorList from "../components/ErrorList.vue";
 
 const tasks = reactive<{ id: string; title: string; isComplete: boolean }[]>(
   []
@@ -20,8 +21,8 @@ onMounted(async () => {
     return errors.push(...tasksQueryErrors);
   }
 
-  tasksQueryResult.forEach(({ _id, title, isComplete }) =>
-    tasks.push({ id: _id, title, isComplete })
+  tasksQueryResult.forEach(({ _id: id, title, isComplete }) =>
+    tasks.push({ id, title, isComplete })
   );
 });
 
@@ -50,20 +51,28 @@ function removeTask(taskId: string) {
 </script>
 
 <template>
-  <main>
-    <h2>Tasks</h2>
+  <main class="flex flex-col">
+    <h2 class="my-4 font-heading text-4xl text-center font-semibold">Tasks</h2>
 
-    <ul v-if="errors.length" data-test="tasks-crud-errors">
-      <li v-for="error in errors" :key="error">{{ error }}</li>
-    </ul>
+    <ErrorList
+      v-show="errors.length"
+      :errors="errors"
+      class="my-2"
+      data-test="tasks-crud-errors"
+    />
 
     <CreateTask
+      class="my-4"
       @task-created="(newTask) => tasks.push(newTask)"
       @error="setErrors"
       data-test="create-task-component"
     />
 
-    <ul v-if="tasks.length" data-test="tasks-list">
+    <ul
+      v-if="tasks.length"
+      data-test="tasks-list"
+      class="flex flex-col space-y-2"
+    >
       <li v-for="task in tasks" :key="task.id">
         <TaskComponent
           :task="task"
@@ -75,6 +84,11 @@ function removeTask(taskId: string) {
       </li>
     </ul>
 
-    <h4 v-else>You don't have any tasks.</h4>
+    <h4
+      v-else
+      class="mt-8 text-xl text-center text-slate-400 uppercase tracking-wide"
+    >
+      You don't have any tasks.
+    </h4>
   </main>
 </template>

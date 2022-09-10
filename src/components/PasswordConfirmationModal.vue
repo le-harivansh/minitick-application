@@ -2,6 +2,7 @@
 import axios from "axios";
 import { reactive, ref, watch } from "vue";
 import { nonThrowableServerRequest } from "../lib/helpers";
+import ErrorList from "./ErrorList.vue";
 
 const emit = defineEmits<{
   (event: "passwordConfirmed", expiresAt: number): void;
@@ -55,7 +56,7 @@ async function confirmPassword() {
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="w-5 h-5 text-orange-500"
+        class="w-5 h-5 text-orange-300 hover:text-orange-500"
       >
         <path
           stroke-linecap="round"
@@ -66,83 +67,79 @@ async function confirmPassword() {
     </button>
 
     <teleport to="#application">
-      <article
+      <div
         v-if="isOpen"
-        class="absolute top-0 left-0 w-full h-full p-2 bg-slate-100"
+        class="absolute top-0 left-0 w-full h-full sm:p-4 flex justify-center bg-slate-50"
         data-test="password-confirmation-modal"
       >
-        <section class="flex justify-end mb-4">
-          <button
-            type="button"
-            @click="isOpen = false"
-            data-test="close-password-confirmation-modal-button"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6 text-red-500"
+        <article
+          class="max-w-sm p-2 flex-1 bg-slate-100 shadow-lg sm:rounded-lg"
+        >
+          <section class="flex justify-end mb-4">
+            <button
+              type="button"
+              @click="isOpen = false"
+              data-test="close-password-confirmation-modal-button"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </section>
-        <article class="flex flex-col">
-          <h2 class="mb-4 font-heading text-2xl text-center font-semibold">
-            Confirm your password
-          </h2>
-
-          <ul
-            v-show="errors.length"
-            class="px-2 flex flex-col"
-            data-test="password-confirmation-errors"
-          >
-            <li
-              v-for="error in errors"
-              :key="error"
-              class="text-sm text-red-500"
-            >
-              {{ error }}
-            </li>
-          </ul>
-
-          <form
-            @submit.prevent="confirmPassword"
-            class="flex flex-col space-y-2"
-            data-test="submit-confirm-password-form"
-          >
-            <section class="flex flex-col space-y-2">
-              <label for="password" class="font-semibold">Password:</label>
-              <input
-                type="password"
-                id="password"
-                class="w-full p-2 rounded focus:outline-none focus:ring-2"
-                placeholder="Your password"
-                v-model="password"
-                autocomplete="current-password"
-                required
-                autofocus
-              />
-            </section>
-
-            <section>
-              <button
-                type="submit"
-                class="bg-sky-400 w-full mt-4 py-1 rounded text-white font-bold text-lg hover:shadow-md focus:outline-none"
-                data-test="confirm-password-button"
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6 text-red-500"
               >
-                Confirm
-              </button>
-            </section>
-          </form>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </section>
+          <article class="flex flex-col">
+            <h2 class="mb-4 font-heading text-2xl text-center font-semibold">
+              Confirm your password
+            </h2>
+
+            <ErrorList
+              v-show="errors.length"
+              :errors="errors"
+              data-test="password-confirmation-errors"
+            />
+
+            <form
+              @submit.prevent="confirmPassword"
+              class="flex flex-col space-y-2"
+              data-test="submit-confirm-password-form"
+            >
+              <section class="flex flex-col space-y-2">
+                <label for="password" class="font-semibold">Password:</label>
+                <input
+                  type="password"
+                  id="password"
+                  class="w-full p-2 rounded focus:outline-none focus:ring-2"
+                  placeholder="Your password"
+                  v-model="password"
+                  autocomplete="current-password"
+                  required
+                  autofocus
+                />
+              </section>
+
+              <section>
+                <button
+                  type="submit"
+                  class="bg-sky-400 w-full mt-4 py-1 rounded text-white font-bold text-lg hover:shadow-md focus:outline-none"
+                  data-test="confirm-password-button"
+                >
+                  Confirm
+                </button>
+              </section>
+            </form>
+          </article>
         </article>
-      </article>
+      </div>
     </teleport>
   </div>
 </template>

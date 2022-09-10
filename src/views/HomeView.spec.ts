@@ -39,7 +39,7 @@ describe("HomeView", () => {
 
       await flushPromises();
 
-      expect(wrapper.find('[data-test="tasks-crud-errors"]').exists()).toBe(
+      expect(wrapper.get('[data-test="tasks-crud-errors"]').isVisible()).toBe(
         false
       );
 
@@ -50,7 +50,7 @@ describe("HomeView", () => {
       );
     });
 
-    it("displays an error message if the user's tasks could not be fetched", async () => {
+    it("displays any returned error message if the user's tasks could not be fetched", async () => {
       const errorMessage = "An error occured";
 
       server.use(
@@ -59,15 +59,14 @@ describe("HomeView", () => {
         )
       );
 
-      const wrapper = shallowMount(HomeView);
+      const wrapper = shallowMount(HomeView, {
+        global: { stubs: { ErrorList: false } },
+      });
 
       await flushPromises();
 
       expect(wrapper.find('[data-test="tasks-list"]').exists()).toBe(false);
 
-      expect(wrapper.find('[data-test="tasks-crud-errors"]').exists()).toBe(
-        true
-      );
       expect(wrapper.find('[data-test="tasks-crud-errors"]').text()).toContain(
         errorMessage
       );
@@ -82,10 +81,10 @@ describe("HomeView", () => {
         isComplete: false,
       };
 
-      const wrapper = mount(HomeView, {
+      const wrapper = shallowMount(HomeView, {
         global: {
           stubs: {
-            CreateTask: true,
+            TaskComponent: false,
           },
         },
       });
@@ -106,10 +105,10 @@ describe("HomeView", () => {
     it("displays any emitted errors", async () => {
       const errorMessages = ["An error occured."];
 
-      const wrapper = mount(HomeView, {
+      const wrapper = shallowMount(HomeView, {
         global: {
           stubs: {
-            CreateTask: true,
+            ErrorList: false,
           },
         },
       });
@@ -134,10 +133,10 @@ describe("HomeView", () => {
     it("marks a task as complete", async () => {
       const taskToMarkAsComplete = tasks[0];
 
-      const wrapper = mount(HomeView, {
+      const wrapper = shallowMount(HomeView, {
         global: {
           stubs: {
-            CreateTask: true,
+            TaskComponent: false,
           },
         },
       });
@@ -169,10 +168,10 @@ describe("HomeView", () => {
       const taskToUpdate = tasks[0];
       const newTitle = "The new title of the task";
 
-      const wrapper = mount(HomeView, {
+      const wrapper = shallowMount(HomeView, {
         global: {
           stubs: {
-            CreateTask: true,
+            TaskComponent: false,
           },
         },
       });
@@ -203,10 +202,10 @@ describe("HomeView", () => {
     it("marks a task as incomplete", async () => {
       const taskToMarkAsIncomplete = tasks[1];
 
-      const wrapper = mount(HomeView, {
+      const wrapper = shallowMount(HomeView, {
         global: {
           stubs: {
-            CreateTask: true,
+            TaskComponent: false,
           },
         },
       });
@@ -238,10 +237,10 @@ describe("HomeView", () => {
       const taskToToggleCompletionOf = tasks[1];
       const errorMessages = ["An error occured."];
 
-      const wrapper = mount(HomeView, {
+      const wrapper = shallowMount(HomeView, {
         global: {
           stubs: {
-            CreateTask: true,
+            ErrorList: false,
           },
         },
       });
@@ -268,10 +267,10 @@ describe("HomeView", () => {
     it("deletes a task", async () => {
       const taskToDelete = tasks[1];
 
-      const wrapper = mount(HomeView, {
+      const wrapper = shallowMount(HomeView, {
         global: {
           stubs: {
-            CreateTask: true,
+            TaskComponent: false,
           },
         },
       });
@@ -295,10 +294,10 @@ describe("HomeView", () => {
       const taskToDelete = tasks[0];
       const errorMessages = ["An error occured."];
 
-      const wrapper = mount(HomeView, {
+      const wrapper = shallowMount(HomeView, {
         global: {
           stubs: {
-            CreateTask: true,
+            ErrorList: false,
           },
         },
       });

@@ -33,7 +33,7 @@ describe.each<{
     clearAfterUpdate: true,
   },
 ])(
-  `${UpdateUserField.name} [$fieldToUpdate]`,
+  "UpdateUserField [$fieldToUpdate]",
   ({
     fieldToUpdate,
     fieldInitialValue = undefined,
@@ -175,11 +175,7 @@ describe.each<{
           rest.patch("/user", (_, response, context) =>
             response(
               context.status(400),
-              context.json({
-                statusCode: 400,
-                message: updateErrors,
-                error: "Bad Request",
-              })
+              context.json({ message: updateErrors })
             )
           )
         );

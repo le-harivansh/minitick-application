@@ -24,7 +24,7 @@ import ProfileView from "./ProfileView.vue";
 import type UpdateUserField from "../components/UpdateUserField.vue";
 import type PasswordConfirmationModal from "../components/PasswordConfirmationModal.vue";
 
-function createWrapper() {
+function createWrapper(mountOptions?: { stubs: Record<string, boolean> }) {
   const router = createRouter({
     history: createWebHistory(),
     routes: stubbedRoutes,
@@ -35,6 +35,7 @@ function createWrapper() {
       plugins: [createTestingPinia({ createSpy: vi.fn }), router],
       stubs: {
         teleport: true,
+        ...(mountOptions?.stubs ?? {}),
       },
     },
   });
@@ -45,7 +46,7 @@ function createWrapper() {
   };
 }
 
-describe(ProfileView.name, () => {
+describe("ProfileView", () => {
   const server = setupServer();
 
   beforeAll(() => {
@@ -95,11 +96,7 @@ describe(ProfileView.name, () => {
           rest.post("/logout", (_, response, context) =>
             response(
               context.status(400),
-              context.json({
-                statusCode: 400,
-                message: errorMessage,
-                error: "Bad Request",
-              })
+              context.json({ message: errorMessage })
             )
           )
         );
@@ -110,7 +107,7 @@ describe(ProfileView.name, () => {
       });
 
       it("displays any errors", async () => {
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
 
         await wrapper
           .get('[data-test="logout-current-session-button"]')
@@ -118,16 +115,16 @@ describe(ProfileView.name, () => {
 
         await flushPromises();
 
-        expect(wrapper.find('[data-test="profile-view-errors"]').exists()).toBe(
-          true
-        );
+        expect(
+          wrapper.get('[data-test="profile-view-errors"]').isVisible()
+        ).toBe(true);
         expect(
           wrapper.get('[data-test="profile-view-errors"]').text()
         ).toContain(errorMessage);
       });
 
       it("clears any errors before retrying", async () => {
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
 
         await wrapper
           .get('[data-test="logout-current-session-button"]')
@@ -138,10 +135,9 @@ describe(ProfileView.name, () => {
 
         await flushPromises();
 
-        expect(
-          wrapper.get<HTMLUListElement>('[data-test="profile-view-errors"]')
-            .element.childElementCount
-        ).toBe(1);
+        expect(wrapper.get('[data-test="profile-view-errors"]').text()).toBe(
+          errorMessage
+        );
       });
     });
 
@@ -253,11 +249,7 @@ describe(ProfileView.name, () => {
           rest.post("/logout", (_, response, context) =>
             response(
               context.status(400),
-              context.json({
-                statusCode: 400,
-                message: errorMessage,
-                error: "Bad Request",
-              })
+              context.json({ message: errorMessage })
             )
           )
         );
@@ -268,7 +260,7 @@ describe(ProfileView.name, () => {
       });
 
       it("displays any errors", async () => {
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
 
         /**
          * We await nextTick so that the button is not disabled anymore.
@@ -281,16 +273,16 @@ describe(ProfileView.name, () => {
 
         await flushPromises();
 
-        expect(wrapper.find('[data-test="profile-view-errors"]').exists()).toBe(
-          true
-        );
+        expect(
+          wrapper.get('[data-test="profile-view-errors"]').isVisible()
+        ).toBe(true);
         expect(
           wrapper.get('[data-test="profile-view-errors"]').text()
         ).toContain(errorMessage);
       });
 
       it("clears any errors before retrying", async () => {
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
 
         await wrapper
           .get('[data-test="logout-other-sessions-button"]')
@@ -301,10 +293,9 @@ describe(ProfileView.name, () => {
 
         await flushPromises();
 
-        expect(
-          wrapper.get<HTMLUListElement>('[data-test="profile-view-errors"]')
-            .element.childElementCount
-        ).toBe(1);
+        expect(wrapper.get('[data-test="profile-view-errors"]').text()).toBe(
+          errorMessage
+        );
       });
     });
 
@@ -426,11 +417,7 @@ describe(ProfileView.name, () => {
           rest.delete("/user", (_, response, context) =>
             response(
               context.status(401),
-              context.json({
-                statusCode: 401,
-                message: errorMessage,
-                error: "Bad Request",
-              })
+              context.json({ message: errorMessage })
             )
           )
         );
@@ -441,7 +428,7 @@ describe(ProfileView.name, () => {
       });
 
       it("displays any errors", async () => {
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
 
         /**
          * We await nextTick so that the button is not disabled anymore.
@@ -454,16 +441,16 @@ describe(ProfileView.name, () => {
 
         await flushPromises();
 
-        expect(wrapper.find('[data-test="profile-view-errors"]').exists()).toBe(
-          true
-        );
+        expect(
+          wrapper.get('[data-test="profile-view-errors"]').isVisible()
+        ).toBe(true);
         expect(
           wrapper.get('[data-test="profile-view-errors"]').text()
         ).toContain(errorMessage);
       });
 
       it("clears any errors before retrying", async () => {
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
 
         /**
          * We await nextTick so that the button is not disabled anymore.
@@ -479,10 +466,9 @@ describe(ProfileView.name, () => {
 
         await flushPromises();
 
-        expect(
-          wrapper.get<HTMLUListElement>('[data-test="profile-view-errors"]')
-            .element.childElementCount
-        ).toBe(1);
+        expect(wrapper.get('[data-test="profile-view-errors"]').text()).toBe(
+          errorMessage
+        );
       });
     });
 
@@ -608,7 +594,7 @@ describe(ProfileView.name, () => {
       it("displays any errors", async () => {
         const errorMessage = "An error occured during the update process.";
 
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
 
         wrapper
           .findComponent<typeof UpdateUserField>(
@@ -618,9 +604,9 @@ describe(ProfileView.name, () => {
 
         await nextTick();
 
-        expect(wrapper.find('[data-test="profile-view-errors"]').exists()).toBe(
-          true
-        );
+        expect(
+          wrapper.get('[data-test="profile-view-errors"]').isVisible()
+        ).toBe(true);
         expect(
           wrapper.get('[data-test="profile-view-errors"]').text()
         ).toContain(errorMessage);
@@ -629,25 +615,19 @@ describe(ProfileView.name, () => {
       it("clears any errors before retrying", async () => {
         const errorMessage = "An error occured during the update process.";
 
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
+        const component = wrapper.findComponent<typeof UpdateUserField>(
+          '[data-test="update-username-field"]'
+        );
 
-        wrapper
-          .findComponent<typeof UpdateUserField>(
-            '[data-test="update-username-field"]'
-          )
-          .vm.$emit("updateFailure", [errorMessage]);
-        wrapper
-          .findComponent<typeof UpdateUserField>(
-            '[data-test="update-username-field"]'
-          )
-          .vm.$emit("updateFailure", [errorMessage]);
+        component.vm.$emit("updateFailure", [errorMessage]);
+        component.vm.$emit("updateFailure", [errorMessage]);
 
         await nextTick();
 
-        expect(
-          wrapper.get<HTMLUListElement>('[data-test="profile-view-errors"]')
-            .element.childElementCount
-        ).toBe(1);
+        expect(wrapper.get('[data-test="profile-view-errors"]').text()).toBe(
+          errorMessage
+        );
       });
     });
 
@@ -670,6 +650,27 @@ describe(ProfileView.name, () => {
           authenticatedUserUsername
         );
       });
+
+      it("clears any previous errors", async () => {
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
+        const component = wrapper.findComponent<typeof UpdateUserField>(
+          '[data-test="update-username-field"]'
+        );
+
+        component.vm.$emit("updateFailure", [
+          "An error occured during the username update process.",
+        ]);
+
+        await nextTick();
+
+        component.vm.$emit("updateSuccess", "le-username");
+
+        await nextTick();
+
+        expect(
+          wrapper.get('[data-test="profile-view-errors"]').isVisible()
+        ).toBe(false);
+      });
     });
   });
 
@@ -678,7 +679,7 @@ describe(ProfileView.name, () => {
       it("displays any errors", async () => {
         const errorMessage = "An error occured during the update process.";
 
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
 
         wrapper
           .findComponent<typeof UpdateUserField>(
@@ -688,9 +689,9 @@ describe(ProfileView.name, () => {
 
         await nextTick();
 
-        expect(wrapper.find('[data-test="profile-view-errors"]').exists()).toBe(
-          true
-        );
+        expect(
+          wrapper.get('[data-test="profile-view-errors"]').isVisible()
+        ).toBe(true);
         expect(
           wrapper.get('[data-test="profile-view-errors"]').text()
         ).toContain(errorMessage);
@@ -699,25 +700,42 @@ describe(ProfileView.name, () => {
       it("clears any errors before retrying", async () => {
         const errorMessage = "An error occured during the update process.";
 
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
+        const component = wrapper.findComponent<typeof UpdateUserField>(
+          '[data-test="update-password-field"]'
+        );
 
-        wrapper
-          .findComponent<typeof UpdateUserField>(
-            '[data-test="update-password-field"]'
-          )
-          .vm.$emit("updateFailure", [errorMessage]);
-        wrapper
-          .findComponent<typeof UpdateUserField>(
-            '[data-test="update-password-field"]'
-          )
-          .vm.$emit("updateFailure", [errorMessage]);
+        component.vm.$emit("updateFailure", [errorMessage]);
+        component.vm.$emit("updateFailure", [errorMessage]);
+
+        await nextTick();
+
+        expect(wrapper.get('[data-test="profile-view-errors"]').text()).toBe(
+          errorMessage
+        );
+      });
+    });
+
+    describe("on success", () => {
+      it("clears any previous errors", async () => {
+        const { wrapper } = createWrapper({ stubs: { ErrorList: false } });
+        const component = wrapper.findComponent<typeof UpdateUserField>(
+          '[data-test="update-password-field"]'
+        );
+
+        component.vm.$emit("updateFailure", [
+          "An error occured during the password update process.",
+        ]);
+
+        await nextTick();
+
+        component.vm.$emit("updateSuccess", "le-username");
 
         await nextTick();
 
         expect(
-          wrapper.get<HTMLUListElement>('[data-test="profile-view-errors"]')
-            .element.childElementCount
-        ).toBe(1);
+          wrapper.get('[data-test="profile-view-errors"]').isVisible()
+        ).toBe(false);
       });
     });
   });

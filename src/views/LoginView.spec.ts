@@ -1,5 +1,5 @@
 import { createTestingPinia } from "@pinia/testing";
-import { flushPromises, shallowMount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -13,16 +13,17 @@ import { stubbedRoutes } from "../lib/test/helpers";
 import { useMainStore } from "../stores/main";
 import LoginView from "./LoginView.vue";
 
-function createWrapper() {
+function createWrapper(mountOptions: { shallow: boolean } = { shallow: true }) {
   const router = createRouter({
     history: createWebHistory(),
     routes: stubbedRoutes,
   });
 
-  const wrapper = shallowMount(LoginView, {
+  const wrapper = mount(LoginView, {
     global: {
       plugins: [createTestingPinia({ createSpy: vi.fn }), router],
     },
+    shallow: mountOptions.shallow,
   });
 
   return {
@@ -31,7 +32,7 @@ function createWrapper() {
   };
 }
 
-describe(LoginView.name, () => {
+describe("LoginView", () => {
   const server = setupServer();
 
   beforeAll(() => {
@@ -60,14 +61,7 @@ describe(LoginView.name, () => {
     beforeAll(() => {
       server.use(
         rest.post("/login", (_, response, context) =>
-          response(
-            context.status(401),
-            context.json({
-              statusCode: 401,
-              message: errorMessage,
-              error: "Unauthorized",
-            })
-          )
+          response(context.status(401), context.json({ message: errorMessage }))
         )
       );
     });
@@ -77,7 +71,7 @@ describe(LoginView.name, () => {
     });
 
     it("displays any errors that occur during the login request", async () => {
-      const { wrapper } = createWrapper();
+      const { wrapper } = createWrapper({ shallow: false });
 
       await wrapper.get("#username").setValue("le-username");
       await wrapper.get("#password").setValue("le-password");
@@ -92,7 +86,7 @@ describe(LoginView.name, () => {
     });
 
     it("clears any previous errors before retrying the registration request", async () => {
-      const { wrapper } = createWrapper();
+      const { wrapper } = createWrapper({ shallow: false });
 
       await wrapper.get("#username").setValue("le-username");
       await wrapper.get("#password").setValue("le-password");
@@ -106,10 +100,9 @@ describe(LoginView.name, () => {
 
       await flushPromises();
 
-      expect(
-        wrapper.get<HTMLUListElement>('[data-test="login-errors"]').element
-          .childElementCount
-      ).toBe(1);
+      expect(wrapper.get('[data-test="login-errors"]').text()).toBe(
+        errorMessage
+      );
     });
   });
 
@@ -171,11 +164,7 @@ describe(LoginView.name, () => {
           rest.get("/user", (_, response, context) =>
             response(
               context.status(403),
-              context.json({
-                statusCode: 403,
-                message: errorMessage,
-                error: "Unauthorized",
-              })
+              context.json({ message: errorMessage })
             )
           )
         );
@@ -186,7 +175,7 @@ describe(LoginView.name, () => {
       });
 
       it("displays any errors that occur during the user-query request", async () => {
-        const { wrapper } = createWrapper();
+        const { wrapper } = createWrapper({ shallow: false });
 
         await wrapper.get("#username").setValue("le-username");
         await wrapper.get("#password").setValue("le-password");

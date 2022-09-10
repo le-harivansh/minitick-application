@@ -25,7 +25,7 @@ function createWrapper() {
   };
 }
 
-describe(MainNavigation.name, () => {
+describe("MainNavigation", () => {
   describe("Unauthenticated user", () => {
     it("shows the login & register links to an unauthenticated user", () => {
       const { wrapper } = createWrapper();

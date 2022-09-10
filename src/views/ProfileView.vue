@@ -11,6 +11,7 @@ import { nonThrowableServerRequest } from "../lib/helpers";
 import { useMainStore } from "../stores/main";
 import PasswordConfirmationModal from "../components/PasswordConfirmationModal.vue";
 import UpdateUserField from "../components/UpdateUserField.vue";
+import ErrorList from "../components/ErrorList.vue";
 
 const router = useRouter();
 const mainStore = useMainStore();
@@ -18,6 +19,8 @@ const mainStore = useMainStore();
 const passwordIsConfirmed = ref(false);
 
 const errors = reactive<string[]>([]);
+
+const clearErrors = () => errors.splice(0, errors.length);
 
 onMounted(() => {
   const currentPasswordConfirmationTokenExpiresAt = Number(
@@ -36,7 +39,7 @@ onMounted(() => {
 
 watch(passwordIsConfirmed, (passwordIsConfirmed) => {
   if (!passwordIsConfirmed) {
-    errors.splice(0, errors.length);
+    clearErrors();
   }
 });
 
@@ -105,29 +108,27 @@ function passwordConfirmed(passwordConfirmationTokenExpiresAt: number) {
 }
 
 function setErrors(errorMessages: string[]) {
-  errors.splice(0, errors.length);
+  clearErrors();
 
   errors.push(...errorMessages);
+}
+
+function usernameUpdated(newUsername: string) {
+  clearErrors();
+
+  mainStore.authenticatedUser.username = newUsername;
 }
 </script>
 
 <template>
-  <main class="flex flex-col space-y-4">
+  <main class="flex flex-col space-y-4" id="profile-view">
     <h2 class="font-heading text-2xl font-semibold">Profile</h2>
 
-    <ul
-      v-if="errors.length"
-      class="px-2 py-1 border-2 border-red-600 bg-red-50 rounded"
+    <ErrorList
+      v-show="errors.length"
+      :errors="errors"
       data-test="profile-view-errors"
-    >
-      <li
-        v-for="(errorMessage, index) in errors"
-        :key="`${errorMessage}-${index}`"
-        class="text-xs font-semibold text-gray-600 tracking-wide"
-      >
-        {{ errorMessage }}
-      </li>
-    </ul>
+    />
 
     <section class="flex flex-col space-y-1">
       <div class="flex justify-end">
@@ -155,10 +156,7 @@ function setErrors(errorMessages: string[]) {
           field-pattern=".{4,}"
           field-title="The username should be at least 4 characters long"
           field-autocomplete="username"
-          @update-success="
-            (newUsername) =>
-              (mainStore.authenticatedUser.username = newUsername)
-          "
+          @update-success="usernameUpdated"
           @update-failure="setErrors"
           data-test="update-username-field"
         >
@@ -174,6 +172,7 @@ function setErrors(errorMessages: string[]) {
           field-title="The password should be at least 8 characters long"
           field-autocomplete="new-password"
           :clear-after-update="true"
+          @update-success="clearErrors"
           @update-failure="setErrors"
           data-test="update-password-field"
         >
@@ -185,12 +184,14 @@ function setErrors(errorMessages: string[]) {
           @click="logout('other-sessions')"
           class="py-1 text-white font-semibold rounded"
           :class="[
-            passwordIsConfirmed ? 'bg-red-500 hover:shadow-md' : 'bg-gray-400',
+            passwordIsConfirmed
+              ? 'bg-orange-400 hover:shadow-md'
+              : 'bg-gray-400',
           ]"
           :disabled="!passwordIsConfirmed"
           data-test="logout-other-sessions-button"
         >
-          Log out of other sessions
+          Log out (other sessions)
         </button>
 
         <button
@@ -211,10 +212,10 @@ function setErrors(errorMessages: string[]) {
     <button
       type="button"
       @click="logout('current-session')"
-      class="py-1 bg-red-500 text-white font-semibold hover:shadow-md rounded"
+      class="py-1 bg-yellow-500 text-white font-semibold hover:shadow-md rounded"
       data-test="logout-current-session-button"
     >
-      Log out
+      Log out (current session)
     </button>
   </main>
 </template>
