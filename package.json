@@ -1,6 +1,18 @@
 {
-  "name": "clax-application",
-  "version": "0.0.0",
+  "name": "minitick-application",
+  "version": "1.0.0",
+  "description": "The SPA of the minitick application.",
+  "keywords": [
+    "minitick",
+    "task-management"
+  ],
+  "author": {
+    "name": "Harivansh",
+    "email": "hello@harivan.sh",
+    "url": "https://harivan.sh"
+  },
+  "private": true,
+  "license": "UNLICENSED",
   "scripts": {
     "lint": "eslint . --ext .vue,.ts,.js,.cjs --fix --ignore-path .gitignore",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
